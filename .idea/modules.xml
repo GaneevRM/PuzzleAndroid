@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidPuzzleGame.iml" filepath="$PROJECT_DIR$/AndroidPuzzleGame.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/PuzzleAndroid.iml" filepath="$PROJECT_DIR$/.idea/modules/PuzzleAndroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/PuzzleAndroid.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/PuzzleAndroid.app.iml" />
     </modules>
   </component>
 </project>

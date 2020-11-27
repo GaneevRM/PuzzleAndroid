@@ -4,20 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -26,17 +16,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-
-import static java.lang.Math.abs;
 
 public class MainActivity extends AppCompatActivity {
     String mCurrentPhotoPath;
@@ -50,75 +35,34 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Получение ассетов (картинок)
         AssetManager am = getAssets();
         try {
+            //Массив с названием картинок
             final String[] files  = am.list("img");
-
+            //Создание Grid
             GridView grid = findViewById(R.id.grid);
-            grid.setAdapter(new ImageAdapter(this));
+            //Назначене адаптера для Grid. Ибо для Grid требуются данные для наполнения.
+            // Источником наполнения могут быть массивы, базы данных.
+            // Чтобы связать данные со списком, используется так называемый адаптер.
+            ImageAdapter adapter = new ImageAdapter(this);
+            grid.setAdapter(adapter);
+
+            //Описание слушателя на элемент из Grid
             grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    //Создание объекта Intent для вызова новой Activity (PuzzleActivity)
                     Intent intent = new Intent(getApplicationContext(), PuzzleActivity.class);
+                    // Добавляем с помощью свойства putExtra объект - первый параметр - ключ,
+                    // второй параметр - значение этого объекта (название картинки). ЗАЧЕМ ВЫСЧИТЫВАТЬ?
                     intent.putExtra("assetName", files[i % files.length]);
+                    //Запуск PuzzleActivity с переданным ей названием картинки
                     startActivity(intent);
                 }
             });
         } catch (IOException e) {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
-        }
-    }
-
-    public void onImageFromCameraClick(View view) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
-            }
-
-            if (photoFile != null) {
-                Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
-            }
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // permission not granted, initiate request
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
-        } else {
-            // Create an image file name
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String imageFileName = "JPEG_" + timeStamp + "_";
-            File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File image = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-            mCurrentPhotoPath = image.getAbsolutePath(); // save this to use in the intent
-
-            return image;
-        }
-
-        return null;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    onImageFromCameraClick(new View(this));
-                }
-
-                return;
-            }
         }
     }
 
@@ -144,7 +88,69 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
+            //Вызываем Activity с возвратом результата
             startActivityForResult(intent, REQUEST_IMAGE_GALLERY);
+        }
+    }
+
+    public void onImageFromCameraClick(View view) {
+        //Создание объекта Intent для вызова новой Activity (PuzzleActivity)
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
+            }
+
+            if (photoFile != null) {
+                Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    /**
+     * Вызывается после использовании камеры
+     * @return - Возвращает временный файл (фотку)
+     * @throws IOException
+     */
+    private File createImageFile() throws IOException {
+        //Если нет разрешения на работу с памятью устройства, то сделать запрос
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
+        } else {
+            //После получения разрешения составляем название картинки
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_";
+            //Получаем директорию галереи смартфона
+            File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            //Создаём временный файл имя файла + тип файла + дерикторя (откуда этот файл берём)
+            File image = File.createTempFile(
+                    imageFileName,  /* prefix */
+                    ".jpg",         /* suffix */
+                    storageDir      /* directory */
+            );
+            //Записываем путь к временному файлу, чтобы использовать в Intent (передать временный файл в Activity)
+            mCurrentPhotoPath = image.getAbsolutePath();
+
+            return image;
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onImageFromCameraClick(new View(this));
+                }
+                return;
+            }
         }
     }
 }
