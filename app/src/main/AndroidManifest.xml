@@ -12,7 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".RegistrationActivity"
+            android:label="Регистрация"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".AuthorizationActivity"
+            android:label="Авторизация"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,7 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PuzzleActivity"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="Галерея"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".PuzzleActivity" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -28,7 +38,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 
