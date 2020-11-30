@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 public class AuthorizationActivity extends AppCompatActivity {
@@ -15,8 +16,9 @@ public class AuthorizationActivity extends AppCompatActivity {
     private EditText loginField;
     /**Введите пароль*/
     private EditText passField;
-
+    private DatabaseHelper databaseHelper;
     private SQLiteDatabase db;
+    private Cursor userCursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,22 +28,22 @@ public class AuthorizationActivity extends AppCompatActivity {
         loginField = findViewById(R.id.editTextTextPersonName);
         passField = findViewById(R.id.editTextTextPassword);
 
-        db = getBaseContext().openOrCreateDatabase("person.db", MODE_PRIVATE, null);
-
-        db.delete("users",null,null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS users (login TEXT, password TEXT)");
-        db.execSQL("INSERT INTO users VALUES ('admin', 'admin');");
-        db.execSQL("INSERT INTO users VALUES ('user', 'user');");
+        databaseHelper = new DatabaseHelper(getApplicationContext());
 
     }
 
     public void onInput(View view) {
-        Cursor query = db.rawQuery("SELECT * FROM users;", null);
-        if(query.moveToFirst()){
+
+        //Открываем подключение к БД
+        db = databaseHelper.getReadableDatabase();
+        //Получаем данные из БД в виде курсора
+        userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE, null);
+
+        if(userCursor.moveToFirst()){
             boolean flag = true;
             do{
-                String login = query.getString(0);
-                String pass = query.getString(1);
+                String login = userCursor.getString(0);
+                String pass = userCursor.getString(1);
                 if ((loginField.getText().toString().equals(login)) && (passField.getText().toString().equals(pass))) {
                     Toast.makeText(getApplicationContext(), "Добро пожаловать", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, MainActivity.class);
@@ -50,14 +52,21 @@ public class AuthorizationActivity extends AppCompatActivity {
                     break;
                 }
             }
-            while (query.moveToNext());
+            while (userCursor.moveToNext());
             if(flag) Toast.makeText(getApplicationContext(), "Вы не зарегистрированы", Toast.LENGTH_SHORT).show();
         }
-        query.close();
+        userCursor.close();
     }
 
     public void onRegistration(View view){
         Intent intent = new Intent(this, RegistrationActivity.class);
         startActivity(intent);
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+        //Закрываем подключение и курсор
+        db.close();
+        userCursor.close();
     }
 }
