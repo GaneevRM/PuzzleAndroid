@@ -1,4 +1,4 @@
-package dragosholban.com.androidpuzzlegame;
+package ganeevrm.com.puzzleandroid;
 
 import android.Manifest;
 import android.content.Intent;

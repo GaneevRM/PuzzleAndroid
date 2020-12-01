@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dragosholban.com.androidpuzzlegame">
+    package="ganeevrm.com.puzzleandroid">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -11,10 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".AccountsActivity"></activity>
+        <activity android:name=".MainAdmin" />
         <activity
             android:name=".RegistrationActivity"
             android:label="Регистрация"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AuthorizationActivity"
             android:label="Авторизация"
@@ -28,7 +30,7 @@
         <activity
             android:name=".MainActivity"
             android:label="Галерея"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity android:name=".PuzzleActivity" />
 
         <provider

@@ -1,4 +1,4 @@
-package dragosholban.com.androidpuzzlegame;
+package ganeevrm.com.puzzleandroid;
 
 import org.junit.Test;
 

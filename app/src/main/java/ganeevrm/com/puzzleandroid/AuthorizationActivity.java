@@ -1,4 +1,4 @@
-package dragosholban.com.androidpuzzlegame;
+package ganeevrm.com.puzzleandroid;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 public class AuthorizationActivity extends AppCompatActivity {
@@ -44,6 +43,13 @@ public class AuthorizationActivity extends AppCompatActivity {
             do{
                 String login = userCursor.getString(0);
                 String pass = userCursor.getString(1);
+                if ((loginField.getText().toString().equals("admin")) && (passField.getText().toString().equals("admin"))) {
+                    Toast.makeText(getApplicationContext(), "Добро пожаловать Admin", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, MainAdmin.class);
+                    startActivity(intent);
+                    flag = false;
+                    break;
+                }
                 if ((loginField.getText().toString().equals(login)) && (passField.getText().toString().equals(pass))) {
                     Toast.makeText(getApplicationContext(), "Добро пожаловать", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, MainActivity.class);

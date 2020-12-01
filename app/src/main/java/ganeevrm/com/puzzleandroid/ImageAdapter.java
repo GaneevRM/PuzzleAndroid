@@ -1,4 +1,4 @@
-package dragosholban.com.androidpuzzlegame;
+package ganeevrm.com.puzzleandroid;
 
 import android.content.Context;
 import android.content.res.AssetManager;

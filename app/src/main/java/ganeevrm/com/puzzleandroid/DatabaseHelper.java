@@ -1,4 +1,4 @@
-package dragosholban.com.androidpuzzlegame;
+package ganeevrm.com.puzzleandroid;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,7 +10,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**Версия БД*/
     private static final int SCHEMA = 1;
     /**Название таблицы в БД*/
-    static final String TABLE = "users";
+    public static final String TABLE = "users";
+    /**Столбец - _id*/
+    public static final String COLUMN_ID = "_id";
     /**Столбец - login*/
     public static final String COLUMN_LOGIN = "login";
     /**Столбец - password*/
@@ -25,12 +27,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Создание таблицы с двумя колонками
-        db.execSQL("CREATE TABLE users (" + COLUMN_LOGIN + " TEXT, " + COLUMN_PASSWORD + " TEXT);");
+        db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LOGIN + " TEXT, " + COLUMN_PASSWORD + " TEXT);");
         //Добавление начальных данных
         db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES ('admin', 'admin');");
     }
 
-    //Обновление БД. Примитивный подход с удалением предыдущей БД
+    //Обновление БД. Примитивный подход с удалением предыдущей БД (таблицы)
     // с помощью sql-выражения DROP и последующим ее созданием
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion,  int newVersion) {
