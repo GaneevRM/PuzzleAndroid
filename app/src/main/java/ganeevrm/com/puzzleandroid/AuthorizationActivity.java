@@ -45,7 +45,7 @@ public class AuthorizationActivity extends AppCompatActivity {
                 String pass = userCursor.getString(1);
                 if ((loginField.getText().toString().equals("admin")) && (passField.getText().toString().equals("admin"))) {
                     Toast.makeText(getApplicationContext(), "Добро пожаловать Admin", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(this, MainAdmin.class);
+                    Intent intent = new Intent(this, MainAdminActivity.class);
                     startActivity(intent);
                     flag = false;
                     break;

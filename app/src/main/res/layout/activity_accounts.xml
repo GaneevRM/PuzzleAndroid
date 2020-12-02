@@ -8,44 +8,35 @@
     tools:context=".AccountsActivity" >
 
     <TextView
-        android:layout_weight="2"
         android:id="@+id/nameTable"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_gravity="center"
         android:text="Пользователи"
         android:textSize="20dp"/>
 
-    <ScrollView
-        android:layout_weight="1"
+    <GridView
+        android:id="@+id/usergrid"
+        android:scrollbars="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <ListView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp" />
-        </LinearLayout>
-    </ScrollView>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:horizontalSpacing="16dp"
+        android:numColumns="2"
+        android:verticalSpacing="16dp" />
 
 
     <TextView
-        android:layout_weight="2"
         android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:text="Найдено"
         android:textSize="20dp" />
 
     <LinearLayout
-        android:layout_weight="2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -53,6 +44,7 @@
 
         <Button
             android:id="@+id/button"
+            android:layout_gravity="left"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -62,6 +54,7 @@
 
         <Button
             android:id="@+id/button2"
+            android:layout_gravity="center_horizontal"
             android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -71,6 +64,7 @@
 
         <Button
             android:id="@+id/button3"
+            android:layout_gravity="right"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
