@@ -13,6 +13,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE = "users";
     /**Столбец - _id*/
     public static final String COLUMN_ID = "_id";
+    /**Столбец - block*/
+    public static final String COLUMN_BLOCK = "block";
     /**Столбец - login*/
     public static final String COLUMN_LOGIN = "login";
     /**Столбец - password*/
@@ -27,9 +29,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Создание таблицы с двумя колонками
-        db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LOGIN + " TEXT, " + COLUMN_PASSWORD + " TEXT);");
+        db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  + COLUMN_BLOCK + " INTEGER," + COLUMN_LOGIN + " TEXT UNIQUE," + COLUMN_PASSWORD + " TEXT);");
         //Добавление начальных данных
-        db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES ('admin', 'admin');");
+        db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'admin', 'admin');");
     }
 
     //Обновление БД. Примитивный подход с удалением предыдущей БД (таблицы)
