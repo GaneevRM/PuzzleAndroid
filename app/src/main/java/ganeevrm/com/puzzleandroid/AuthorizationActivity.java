@@ -41,8 +41,15 @@ public class AuthorizationActivity extends AppCompatActivity {
         if(userCursor.moveToFirst()){
             boolean flag = true;
             do{
-                String login = userCursor.getString(0);
-                String pass = userCursor.getString(1);
+                String login = userCursor.getString(2);
+                String pass = userCursor.getString(3);
+
+                if(userCursor.getInt(1)==1){
+                    Toast.makeText(getApplicationContext(), "Вы заблокированы", Toast.LENGTH_SHORT).show();
+                    flag = false;
+                    break;
+                }
+
                 if ((loginField.getText().toString().equals("admin")) && (passField.getText().toString().equals("admin"))) {
                     Toast.makeText(getApplicationContext(), "Добро пожаловать Admin", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, MainAdminActivity.class);
