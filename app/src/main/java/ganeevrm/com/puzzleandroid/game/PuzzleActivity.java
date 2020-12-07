@@ -1,4 +1,4 @@
-package ganeevrm.com.puzzleandroid;
+package ganeevrm.com.puzzleandroid.game;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+
+import ganeevrm.com.puzzleandroid.R;
 
 import static java.lang.Math.abs;
 

@@ -1,11 +1,12 @@
-package ganeevrm.com.puzzleandroid;
+package ganeevrm.com.puzzleandroid.admin;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
+
+import ganeevrm.com.puzzleandroid.R;
+import ganeevrm.com.puzzleandroid.admin.AccountsActivity;
 
 public class MainAdminActivity extends AppCompatActivity {
 

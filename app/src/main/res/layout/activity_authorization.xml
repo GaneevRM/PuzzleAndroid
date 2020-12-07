@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".AuthorizationActivity" >
+    tools:context=".authorization.AuthorizationActivity" >
 
     <TextView
         android:id="@+id/textView"

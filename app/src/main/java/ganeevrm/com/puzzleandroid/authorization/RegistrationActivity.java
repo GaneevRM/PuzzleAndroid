@@ -1,4 +1,4 @@
-package ganeevrm.com.puzzleandroid;
+package ganeevrm.com.puzzleandroid.authorization;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -8,6 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import ganeevrm.com.puzzleandroid.DatabaseHelper;
+import ganeevrm.com.puzzleandroid.GalleryActivity;
+import ganeevrm.com.puzzleandroid.R;
 
 public class RegistrationActivity extends AppCompatActivity {
     /**Введите логин*/
@@ -37,7 +41,7 @@ public class RegistrationActivity extends AppCompatActivity {
         cv.put(DatabaseHelper.COLUMN_PASSWORD, passField.getText().toString());
         db.insert(DatabaseHelper.TABLE, null, cv);
         Toast.makeText(getApplicationContext(), "Добро пожаловать", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, GalleryActivity.class);
         startActivity(intent);
     }
 

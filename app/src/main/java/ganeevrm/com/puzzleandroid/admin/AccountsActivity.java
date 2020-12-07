@@ -1,4 +1,4 @@
-package ganeevrm.com.puzzleandroid;
+package ganeevrm.com.puzzleandroid.admin;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -15,6 +15,9 @@ import android.widget.GridView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import ganeevrm.com.puzzleandroid.DatabaseHelper;
+import ganeevrm.com.puzzleandroid.R;
 
 public class AccountsActivity extends AppCompatActivity {
 

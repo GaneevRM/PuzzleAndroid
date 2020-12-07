@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".MainAdminActivity" >
+    tools:context=".admin.MainAdminActivity" >
 
         <Button
             android:id="@+id/button"

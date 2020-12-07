@@ -1,4 +1,4 @@
-package ganeevrm.com.puzzleandroid;
+package ganeevrm.com.puzzleandroid.game;
 
 import android.view.MotionEvent;
 import android.view.View;
