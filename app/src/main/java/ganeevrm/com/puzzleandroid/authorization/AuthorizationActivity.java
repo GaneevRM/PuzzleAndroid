@@ -13,6 +13,7 @@ import ganeevrm.com.puzzleandroid.DatabaseHelper;
 import ganeevrm.com.puzzleandroid.GalleryActivity;
 import ganeevrm.com.puzzleandroid.R;
 import ganeevrm.com.puzzleandroid.admin.MainAdminActivity;
+import ganeevrm.com.puzzleandroid.user.MainUserActivity;
 
 public class AuthorizationActivity extends AppCompatActivity {
 
@@ -44,34 +45,36 @@ public class AuthorizationActivity extends AppCompatActivity {
         userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE, null);
 
         if(userCursor.moveToFirst()){
-            boolean flag = true;
+            boolean registration = true;
             do{
+                int block = userCursor.getInt(1);
                 String login = userCursor.getString(2);
                 String pass = userCursor.getString(3);
-
-                if(userCursor.getInt(1)==1){
-                    Toast.makeText(getApplicationContext(), "Вы заблокированы", Toast.LENGTH_SHORT).show();
-                    flag = false;
-                    break;
-                }
-
+                //Если игрок, то открываем активити с меню для админа
                 if ((loginField.getText().toString().equals("admin")) && (passField.getText().toString().equals("admin"))) {
                     Toast.makeText(getApplicationContext(), "Добро пожаловать Admin", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, MainAdminActivity.class);
                     startActivity(intent);
-                    flag = false;
+                    registration = false;
                     break;
                 }
+                //Если не админ, то открываем активити с меню для игрока
                 if ((loginField.getText().toString().equals(login)) && (passField.getText().toString().equals(pass))) {
+                    //Проверяем пользователя на блокировку
+                    if(block==1){
+                        Toast.makeText(getApplicationContext(), "Вы заблокированы", Toast.LENGTH_SHORT).show();
+                        registration = false;
+                        break;
+                    }
                     Toast.makeText(getApplicationContext(), "Добро пожаловать", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(this, GalleryActivity.class);
+                    Intent intent = new Intent(this, MainUserActivity.class);
                     startActivity(intent);
-                    flag = false;
+                    registration = false;
                     break;
                 }
             }
             while (userCursor.moveToNext());
-            if(flag) Toast.makeText(getApplicationContext(), "Вы не зарегистрированы", Toast.LENGTH_SHORT).show();
+            if(registration) Toast.makeText(getApplicationContext(), "Вы не зарегистрированы", Toast.LENGTH_SHORT).show();
         }
         userCursor.close();
     }
