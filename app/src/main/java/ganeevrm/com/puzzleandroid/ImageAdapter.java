@@ -42,8 +42,13 @@ public class ImageAdapter extends BaseAdapter {
         return 0;
     }
 
-    // create a new ImageView for each item referenced by the Adapter
+    //Создаём новый ImageView для каждого элемента, на который ссылается адаптер
+    //устанавливается отображение элемента списка. Данный метод принимает три параметра:
+    //    position: передает позицию элемента внутри адаптера, для которого создается представление
+    //    convertView: старое представление элемента, которое при наличии используется GridView в целях оптимизации
+    //    parent: родительский компонент для представления элемента
     public View getView(final int position, View convertView, ViewGroup parent) {
+
         if (convertView == null) {
             final LayoutInflater layoutInflater = LayoutInflater.from(mContext);
             convertView = layoutInflater.inflate(R.layout.grid_element, null);
@@ -51,7 +56,7 @@ public class ImageAdapter extends BaseAdapter {
 
         final ImageView imageView = convertView.findViewById(R.id.gridImageview);
         imageView.setImageBitmap(null);
-        // run image related code after the view was laid out
+        //Находим картинку и присваиваем imageView
         imageView.post(new Runnable() {
             @Override
             public void run() {
@@ -76,30 +81,30 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     private Bitmap getPicFromAsset(ImageView imageView, String assetName) {
-        // Get the dimensions of the View
+        //Получаем размеры View
         int targetW = imageView.getWidth();
         int targetH = imageView.getHeight();
 
         if(targetW == 0 || targetH == 0) {
-            // view has no dimensions set
+            //View не имеет установленных размеров
             return null;
         }
 
         try {
             InputStream is = am.open("img/" + assetName);
-            // Get the dimensions of the bitmap
+            // Получаем размеры растрового изображения
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             bmOptions.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(is, new Rect(-1, -1, -1, -1), bmOptions);
             int photoW = bmOptions.outWidth;
             int photoH = bmOptions.outHeight;
 
-            // Determine how much to scale down the image
+            //Определяем, насколько нужно уменьшить масштаб изображения
             int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
 
             is.reset();
 
-            // Decode the image file into a Bitmap sized to fill the View
+            // Декодируем файл изображения в растровое изображение (Bitmap), чтобы заполнить View
             bmOptions.inJustDecodeBounds = false;
             bmOptions.inSampleSize = scaleFactor;
             bmOptions.inPurgeable = true;
