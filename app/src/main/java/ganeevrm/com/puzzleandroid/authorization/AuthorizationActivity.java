@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import ganeevrm.com.puzzleandroid.DatabaseHelper;
-import ganeevrm.com.puzzleandroid.GalleryActivity;
 import ganeevrm.com.puzzleandroid.R;
 import ganeevrm.com.puzzleandroid.admin.MainAdminActivity;
 import ganeevrm.com.puzzleandroid.user.MainUserActivity;
