@@ -6,10 +6,20 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     /**Название БД*/
-    private static final String DATABASE_NAME = "person.db";
+    private static final String DATABASE_NAME = "major.db";
     /**Версия БД*/
     private static final int SCHEMA = 1;
-    /**Название таблицы в БД*/
+
+    /**Таблица Картинок в БД*/
+    public static final String TABLE_PICTURE = "picture";
+    /**Столбец - _id*/
+    public static final String COLUMN_ID_P = "_id";
+    /**Столбец - link*/
+    public static final String COLUMN_LINK = "link";
+    /**Столбец - complexity*/
+    public static final String COLUMN_COMPLEXITY = "complexity";
+
+    /**Таблица пользовтелей в БД*/
     public static final String TABLE = "users";
     /**Столбец - _id*/
     public static final String COLUMN_ID = "_id";
@@ -28,10 +38,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // то срабатывает метод onCreate()
     @Override
     public void onCreate(SQLiteDatabase db) {
-        //Создание таблицы с двумя колонками
-        db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  + COLUMN_BLOCK + " INTEGER," + COLUMN_LOGIN + " TEXT UNIQUE," + COLUMN_PASSWORD + " TEXT);");
+        //Создание таблицы пользователей с колонками
+        db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_BLOCK + " INTEGER," + COLUMN_LOGIN + " TEXT UNIQUE," + COLUMN_PASSWORD + " TEXT);");
         //Добавление начальных данных
         db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'admin', 'admin');");
+        //Создание таблицы картинок с колонками
+        db.execSQL("CREATE TABLE picture (" + COLUMN_ID_P + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LINK + " TEXT UNIQUE," + COLUMN_COMPLEXITY + " INTEGER);");
+        //Добавление начальных данных
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2016/11/08/05/18/hot-air-ballon-1807521_960_720.jpg', 1);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2017/09/02/15/10/greece-2707528_960_720.jpg', 2);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2016/11/29/12/55/architecture-1869661_960_720.jpg', 2);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2016/01/19/17/35/rocky-mountains-1149778_960_720.jpg', 3);");
+
     }
 
     //Обновление БД. Примитивный подход с удалением предыдущей БД (таблицы)
