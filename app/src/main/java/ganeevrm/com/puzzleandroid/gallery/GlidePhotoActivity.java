@@ -24,7 +24,7 @@ public class GlidePhotoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_glid_photo);
+        setContentView(R.layout.activity_glide_photo);
 
         mImageView = (ImageView) findViewById(R.id.image);
         String glidePhoto = getIntent().getStringExtra(EXTRA_SPACE_PHOTO);
@@ -59,21 +59,4 @@ public class GlidePhotoActivity extends AppCompatActivity {
                 .into(mImageView);
 
     }
-
-   /* private SimpleTarget target = new SimpleTarget<Bitmap>() {
-
-        @Override
-        public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
-
-           onPalette(Palette.from(bitmap).generate());
-           mImageView.setImageBitmap(bitmap);
-        }
-
-        public void onPalette(Palette palette) {
-            if (null != palette) {
-                ViewGroup parent = (ViewGroup) mImageView.getParent().getParent();
-                parent.setBackgroundColor(palette.getDarkVibrantColor(Color.GRAY));
-            }
-        }
-    };*/
 }

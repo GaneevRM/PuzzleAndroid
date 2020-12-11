@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import ganeevrm.com.puzzleandroid.R;
-import ganeevrm.com.puzzleandroid.admin.AccountsActivity;
+import ganeevrm.com.puzzleandroid.gallery.GlideGalleryActivity;
 
 public class MainAdminActivity extends AppCompatActivity {
 
@@ -19,6 +19,11 @@ public class MainAdminActivity extends AppCompatActivity {
     public void onAccounts(View view) {
         Intent intent = new Intent(this, AccountsActivity.class);
         startActivity(intent);
+    }
+
+    public void onGame(View view) {
+        Intent galleryIntent = new Intent(this, GlideGalleryActivity.class);
+        startActivity(galleryIntent);
     }
 
 }

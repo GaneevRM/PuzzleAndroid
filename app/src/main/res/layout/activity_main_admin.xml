@@ -12,7 +12,8 @@
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Игры"
+            android:onClick="onGame"
+            android:text="Работа с играми"
             android:textSize="15dp" />
 
         <Button
