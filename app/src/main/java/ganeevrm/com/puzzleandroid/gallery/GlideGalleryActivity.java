@@ -93,26 +93,26 @@ public class GlideGalleryActivity extends AppCompatActivity {
 
 
     public void onSorting(View view) {
-        //Получаем вид с файла prompt.xml, который применим для диалогового окна:
+        //Получаем вид с файла context_sort.xml, который применим для диалогового окна
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.context_sort, null);
 
         //Создаем AlertDialog
         AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
 
-        //Настраиваем prompt.xml для нашего AlertDialog:
+        //Настраиваем context_sort.xml для нашего AlertDialog:
         mDialogBuilder.setView(promptsView);
 
-        //Настраиваем отображение поля для ввода текста в открытом диалоге:
+        //Настраиваем отображение SeekBar и TextView в открытом диалоге:
         final SeekBar seekBar = promptsView.findViewById(R.id.seekBar);
         final TextView tvSeekBar = promptsView.findViewById(R.id.seekBarProgress);
 
 
-
+        //Подключаем слушателя на SeekBar
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                //При изменении ползнука, будет меняться текст
                 tvSeekBar.setText(String.valueOf(progress));
             }
 
@@ -136,14 +136,18 @@ public class GlideGalleryActivity extends AppCompatActivity {
                                 picMass.clear();
                                 if(picCursor.moveToFirst()){
                                     do{
+                                        //Получаем ссылку картинки
                                         String link = picCursor.getString(1);
+                                        //Получаем уровень картинки
                                         int level = picCursor.getInt(2);
+                                        //Если уровень картинки совпадает с выбранным уровненем, то записываем в массив ссылку
                                         if (level==seekBar.getProgress()){
                                             picMass.add(link);
                                         }
                                     }
                                     while (picCursor.moveToNext());
                                 }
+                                //Обновляем адаптер
                                 adapter.notifyDataSetChanged();
                             }
                         })
@@ -173,6 +177,12 @@ public class GlideGalleryActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Уровень выбран", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     *
+     * @param requestCode - код вызванной функции
+     * @param resultCode - код результата работы функции
+     * @param data - выходные данные работы функции
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
