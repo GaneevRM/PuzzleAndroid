@@ -10,6 +10,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**Версия БД*/
     private static final int SCHEMA = 1;
 
+    /**Таблица Уровней в БД*/
+    public static final String TABLE_LEVEL = "level";
+    /**Столбец - _id*/
+    public static final String COLUMN_ID_L = "_id";
+    /**Столбец - level*/
+    public static final String COLUMN_LEVEL = "hard";
+    /**Столбец - width*/
+    public static final String COLUMN_WIDTH = "width";
+    /**Столбец - height*/
+    public static final String COLUMN_HEIGHT = "height";
+    /**Столбец - form*/
+    public static final String COLUMN_FORM = "form";
+
+
     /**Таблица Картинок в БД*/
     public static final String TABLE_PICTURE = "picture";
     /**Столбец - _id*/
@@ -38,18 +52,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // то срабатывает метод onCreate()
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         //Создание таблицы пользователей с колонками
         db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_BLOCK + " INTEGER," + COLUMN_LOGIN + " TEXT UNIQUE," + COLUMN_PASSWORD + " TEXT);");
         //Добавление начальных данных
         db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'admin', 'admin');");
+
         //Создание таблицы картинок с колонками
         db.execSQL("CREATE TABLE picture (" + COLUMN_ID_P + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LINK + " TEXT UNIQUE," + COLUMN_COMPLEXITY + " INTEGER);");
         //Добавление начальных данных
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2016/11/08/05/18/hot-air-ballon-1807521_960_720.jpg', 1);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2017/09/02/15/10/greece-2707528_960_720.jpg', 2);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2016/11/29/12/55/architecture-1869661_960_720.jpg', 2);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('https://cdn.pixabay.com/photo/2016/01/19/17/35/rocky-mountains-1149778_960_720.jpg', 3);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/bobby-burch-145906-unsplash.jpg', 1);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/macie-jones-287939-unsplash.jpg', 2);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/ricardo-gomez-angel-273521-unsplash.jpg', 2);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/spencer-bryan-1891-unsplash.jpg', 3);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/yuriy-garnaev-395879-unsplash.jpg', 2);");
 
+        //Создание таблицы уровней с колонками
+        db.execSQL("CREATE TABLE level (" + COLUMN_ID_L + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LEVEL + " INTEGER," + COLUMN_WIDTH + " INTEGER," + COLUMN_HEIGHT + " INTEGER," + COLUMN_FORM + " TEXT);");
+        //Добавление начальных данных
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_WIDTH  + ", " + COLUMN_HEIGHT  + ", " + COLUMN_FORM  + ") VALUES (1, 4, 3, 'Квадрат');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_WIDTH  + ", " + COLUMN_HEIGHT  + ", " + COLUMN_FORM  + ") VALUES (2, 5, 4, 'Треугольник');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_WIDTH  + ", " + COLUMN_HEIGHT  + ", " + COLUMN_FORM  + ") VALUES (3, 6, 6, 'Фигурный');");
     }
 
     //Обновление БД. Примитивный подход с удалением предыдущей БД (таблицы)
