@@ -21,23 +21,16 @@
         <TextView
             android:id="@+id/header1"
             android:gravity="center"
-            android:layout_width="60dp"
+            android:layout_width="160dp"
             android:layout_height="30dp"
             android:layout_marginLeft="5dp"
-            android:text="Ширина" />
-        <TextView
-            android:id="@+id/header2"
-            android:gravity="center"
-            android:layout_width="50dp"
-            android:layout_height="30dp"
-            android:layout_marginLeft="10dp"
-            android:text="Высота" />
+            android:text="Количество элементов" />
         <TextView
             android:id="@+id/header3"
             android:gravity="center"
             android:layout_width="90dp"
             android:layout_height="30dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:text="Форма" />
 
     </LinearLayout>
@@ -48,6 +41,14 @@
         android:layout_width="match_parent"
         android:numColumns="5"
         />
+
+    <TextView
+        android:id="@+id/tvlevel"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="20dp" />
 
     <TextView
         android:id="@+id/header"

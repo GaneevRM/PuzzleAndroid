@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,28 +42,55 @@ public class LevelActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private Cursor userCursor;
     private long selectLevel;
+    private long idLevel = -1;
+    private TextView tvlevel;
     private TextView header;
-    private String selectRadio;
+    private String selectRadio = "Треугольник";
+    private int selectRadioPiec = 16;
     private SimpleCursorAdapter scAdapter;
     private static final int CM_DELETE_ID = 1;
     private static final int CM_EDIT_ID = 2;
-    private int min = 4, max = 8, step = 2, minHard = 1, maxHard = 10, stepHard =1;
+    private int minHard = 1, maxHard = 10, stepHard =1;
+    private boolean click = false;
+    private int positionList = -1;
 
 
     ListView levelList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_level);
         levelList = findViewById(R.id.levelList);
+        tvlevel = findViewById(R.id.tvlevel);
         header = findViewById(R.id.header);
         databaseHelper = new DatabaseHelper(getApplicationContext());
+        Bundle arguments = getIntent().getExtras();
+        selectLevel = (long) arguments.get("selectlevel");
+        //Открываем подключение
+        db = databaseHelper.getReadableDatabase();
+        //Получаем данные из бд в виде курсора
+        userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_LEVEL, null);
         AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                selectLevel = id;
+                userCursor.moveToPosition(position);
+                if(!click){
+                    v.setBackgroundColor(Color.LTGRAY);
+                    positionList = position;
+                    idLevel =  userCursor.getInt(0);
+                    selectLevel = userCursor.getInt(1);
+                    click = true;
+                    tvlevel.setText("Выбран уровень: " + selectLevel);
+                }else {
+                    if (position == positionList) {
+                        v.setBackgroundColor(Color.TRANSPARENT);
+                        positionList = -1;
+                        selectLevel = 0;
+                        click = false;
+                        tvlevel.setText("Уровень не выбран");
+                    }
+                }
             }
         };
         levelList.setOnItemClickListener(itemListener);
@@ -69,22 +99,22 @@ public class LevelActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //Открываем подключение
-        db = databaseHelper.getReadableDatabase();
-        //Получаем данные из бд в виде курсора
-        userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_LEVEL, null);
         // формируем столбцы сопоставления
-        String[] from = new String[] { DatabaseHelper.COLUMN_LEVEL, DatabaseHelper.COLUMN_WIDTH, DatabaseHelper.COLUMN_HEIGHT, DatabaseHelper.COLUMN_FORM };
-        int[] to = new int[] { R.id.level, R.id.width, R.id.height, R.id.form };
+        String[] from = new String[] { DatabaseHelper.COLUMN_LEVEL, DatabaseHelper.COLUMN_COL_PIECES, DatabaseHelper.COLUMN_FORM };
+        int[] to = new int[] { R.id.level, R.id.col_pieces, R.id.form };
         // создааем адаптер и настраиваем список
         scAdapter = new SimpleCursorAdapter(this, R.layout.list_level_item, userCursor, from, to, 0);
         levelList.setAdapter(scAdapter);
         //Назначаем контекстное меню для листа
         registerForContextMenu(levelList);
+        if(selectLevel==0){
+            tvlevel.setText("Уровень не выбран");
+        }else{
+            tvlevel.setText("Выбран уровень: " + selectLevel);
+        }
         header.setText("Найдено элементов: " + userCursor.getCount());
         userCursor.requery();
     }
-
 
     //Создание контекстного меню для списка
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -99,9 +129,15 @@ public class LevelActivity extends AppCompatActivity {
             //Получаем из пункта контекстного меню данные по пункту списка
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             //Извлекаем id записи и удаляем соответствующую запись в БД
-            db.delete(DatabaseHelper.TABLE_LEVEL, "_id = ?", new String[]{String.valueOf(acmi.id)});
+            try {
+                db.delete(DatabaseHelper.TABLE_LEVEL, "_id = ?", new String[]{String.valueOf(acmi.id)});
+                Toast.makeText(getApplicationContext(), "Уровень удалён", Toast.LENGTH_SHORT).show();
+            }catch (Exception ex){
+                Toast.makeText(getApplicationContext(), "Сначала удалите игру", Toast.LENGTH_SHORT).show();
+            }
             //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
             userCursor.requery();
+            header.setText("Найдено элементов: " + userCursor.getCount());
             scAdapter.notifyDataSetChanged();
             return true;
         }
@@ -125,7 +161,8 @@ public class LevelActivity extends AppCompatActivity {
         //Создание объекта Intent для запуска SecondActivity
         Intent answerIntent = new Intent();
         //Передача объекта с ключом "level" и значением selectLevel
-        answerIntent.putExtra("level",selectLevel);
+        answerIntent.putExtra("selectlevel",selectLevel);
+        answerIntent.putExtra("idLevel",idLevel);
         setResult(RESULT_OK, answerIntent);
         finish();
     }
@@ -150,6 +187,21 @@ public class LevelActivity extends AppCompatActivity {
                     selectRadio = "Фигура";
                 }
                 break;
+            case R.id.radio16:
+                if (checked){
+                    selectRadioPiec = 16;
+                }
+                break;
+            case R.id.radio36:
+                if (checked){
+                    selectRadioPiec = 36;
+                }
+                break;
+            case R.id.radio64:
+                if (checked){
+                    selectRadioPiec = 64;
+                }
+                break;
         }
     }
 
@@ -165,58 +217,19 @@ public class LevelActivity extends AppCompatActivity {
         mDialogBuilder.setView(promptsView);
 
         //Настраиваем отображение поля для ввода текста в открытом диалоге:
+
         final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
+        seekBarHard.setProgress(0);
         final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
+        seekBarHard.setMax( (maxHard - minHard) / stepHard );
 
-        final SeekBar seekBarWidth = promptsView.findViewById(R.id.seekBarWidth);
-        final TextView tvWidthSB = promptsView.findViewById(R.id.seekBarWidthProg);
-
-        final SeekBar seekBarHeight = promptsView.findViewById(R.id.seekBarHeight);
-        final TextView tvHeightSB = promptsView.findViewById(R.id.seekBarHeightProg);
         //Подключаем слушателя на SeekBar
         seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 //При изменении ползнука, будет меняться текст
-                tvHardSB.setText(String.valueOf(progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        //Подключаем слушателя на SeekBar
-        seekBarWidth.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука, будет меняться текст
-                tvWidthSB.setText(String.valueOf(progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        //Подключаем слушателя на SeekBar
-        seekBarHeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука, будет меняться текст
-                tvHeightSB.setText(String.valueOf(progress));
+                double value = minHard + (progress * stepHard);
+                tvHardSB.setText("" + (int)value);
             }
 
             @Override
@@ -237,13 +250,16 @@ public class LevelActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                     ContentValues cv = new ContentValues();
-                                    cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(String.valueOf(seekBarHard.getProgress())));
-                                    cv.put(DatabaseHelper.COLUMN_WIDTH, Integer.parseInt(String.valueOf(seekBarWidth.getProgress())));
-                                    cv.put(DatabaseHelper.COLUMN_HEIGHT, Integer.parseInt(String.valueOf(seekBarHeight.getProgress())));
+                                    cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
+                                    cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
                                     cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
-                                    db.insert(DatabaseHelper.TABLE_LEVEL, null, cv);
-                                    Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
-                                    recreate();
+                                    if(db.insert(DatabaseHelper.TABLE_LEVEL, null, cv)!=-1){
+                                        Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
+                                    }
+                                    userCursor.requery();
+                                    scAdapter.notifyDataSetChanged();
                             }
                         })
                 .setNegativeButton("Отмена",
@@ -275,34 +291,45 @@ public class LevelActivity extends AppCompatActivity {
         final RadioButton rbRec = promptsView.findViewById(R.id.radioTriangle);
         final RadioButton rbSq = promptsView.findViewById(R.id.radioSquare);
         final RadioButton rbFi = promptsView.findViewById(R.id.radioFigure);
-        if(userCursor.getString(4).equals("Треугольник")){
-            rbRec.setChecked(true);
-            onRadioButtonClicked(rbRec);
-        }else if(userCursor.getString(4).equals("Квадрат")){
-            rbSq.setChecked(true);
-            onRadioButtonClicked(rbSq);
-        }else {
-            rbFi.setChecked(true);
-            onRadioButtonClicked(rbFi);
+        final RadioButton rb16 = promptsView.findViewById(R.id.radio16);
+        final RadioButton rb36 = promptsView.findViewById(R.id.radio36);
+        final RadioButton rb64 = promptsView.findViewById(R.id.radio64);
+        switch (userCursor.getString(3)) {
+            case "Треугольник":
+                rbRec.setChecked(true);
+                onRadioButtonClicked(rbRec);
+                break;
+            case "Квадрат":
+                rbSq.setChecked(true);
+                onRadioButtonClicked(rbSq);
+                break;
+            case "Фигура":
+                rbFi.setChecked(true);
+                onRadioButtonClicked(rbFi);
+                break;
         }
+
+        switch (userCursor.getInt(2)) {
+            case 16:
+                rb16.setChecked(true);
+                onRadioButtonClicked(rb16);
+                break;
+            case 36:
+                rb36.setChecked(true);
+                onRadioButtonClicked(rb36);
+                break;
+            case 64:
+                rb64.setChecked(true);
+                onRadioButtonClicked(rb64);
+                break;
+        }
+
 
         final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
         seekBarHard.setProgress((userCursor.getInt(1)-1));
         final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
         seekBarHard.setMax( (maxHard - minHard) / stepHard );
         tvHardSB.setText("" + userCursor.getInt(1));
-
-        final SeekBar seekBarWidth = promptsView.findViewById(R.id.seekBarWidth);
-        seekBarWidth.setProgress((userCursor.getInt(2)-4)/2);
-        final TextView tvWidthSB = promptsView.findViewById(R.id.seekBarWidthProg);
-        seekBarWidth.setMax( (max - min) / step );
-        tvWidthSB.setText("" + userCursor.getInt(2));
-
-        final SeekBar seekBarHeight = promptsView.findViewById(R.id.seekBarHeight);
-        seekBarHeight.setProgress((userCursor.getInt(3)-4)/2);
-        final TextView tvHeightSB = promptsView.findViewById(R.id.seekBarHeightProg);
-        seekBarHeight.setMax( (max - min) / step );
-        tvHeightSB.setText("" + userCursor.getInt(3));
 
         //Подключаем слушателя на SeekBar
         seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -324,45 +351,6 @@ public class LevelActivity extends AppCompatActivity {
             }
         });
 
-        //Подключаем слушателя на SeekBar
-        seekBarWidth.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука, будет меняться текст
-                double value = min + (progress * step);
-                tvWidthSB.setText("" + (int)value);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        //Подключаем слушателя на SeekBar
-        seekBarHeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                double value = min + (progress * step);
-                tvHeightSB.setText("" + (int)value);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
         //Настраиваем сообщение в диалоговом окне:
         mDialogBuilder
                 .setCancelable(false)
@@ -371,11 +359,14 @@ public class LevelActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog,int id) {
                                 ContentValues cv = new ContentValues();
                                 cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
-                                cv.put(DatabaseHelper.COLUMN_WIDTH, Integer.parseInt(tvWidthSB.getText().toString()));
-                                cv.put(DatabaseHelper.COLUMN_HEIGHT, Integer.parseInt(tvHeightSB.getText().toString()));
+                                cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
                                 cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
-                                db.update(DatabaseHelper.TABLE_LEVEL, cv, DatabaseHelper.COLUMN_ID_L + "=" + String.valueOf(acmi.id), null);
-                                Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
+                                try {
+                                    db.update(DatabaseHelper.TABLE_LEVEL, cv, DatabaseHelper.COLUMN_ID_L + "=" + String.valueOf(acmi.id), null);
+                                    Toast.makeText(getApplicationContext(), "Уровень отредактирован", Toast.LENGTH_SHORT).show();
+                                }catch (Exception ex){
+                                    Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
+                                }
                                 recreate();
                             }
                         })
