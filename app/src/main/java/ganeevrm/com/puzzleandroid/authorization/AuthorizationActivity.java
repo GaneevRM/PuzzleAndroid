@@ -33,16 +33,13 @@ public class AuthorizationActivity extends AppCompatActivity {
         passField = findViewById(R.id.editTextTextPassword);
 
         databaseHelper = new DatabaseHelper(getApplicationContext());
-
+        //Открываем подключение к БД
+        db = databaseHelper.getReadableDatabase();
     }
 
     public void onInput(View view) {
-
-        //Открываем подключение к БД
-        db = databaseHelper.getReadableDatabase();
         //Получаем данные из БД в виде курсора
         userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE, null);
-
         if(userCursor.moveToFirst()){
             boolean registration = true;
             do{
@@ -85,8 +82,7 @@ public class AuthorizationActivity extends AppCompatActivity {
 
     public void onDestroy(){
         super.onDestroy();
-        //Закрываем подключение и курсор
-        db.close();
-        userCursor.close();
+        //Закрываем подключение
+        if (db.isOpen()) db.close();
     }
 }
