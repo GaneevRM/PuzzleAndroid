@@ -22,8 +22,9 @@ public class MainAdminActivity extends AppCompatActivity {
     }
 
     public void onGame(View view) {
-        Intent galleryIntent = new Intent(this, GlideGalleryActivity.class);
-        startActivity(galleryIntent);
+        Intent gameIntent = new Intent(this, GameMenuActivity.class);
+        gameIntent.putExtra("Who","admin");
+        startActivity(gameIntent);
     }
 
 }
