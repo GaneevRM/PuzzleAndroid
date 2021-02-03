@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_context_level"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -15,42 +16,64 @@
         android:text="Сложность "
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
-        android:id="@+id/input_hard"
+    <SeekBar
+        android:layout_marginTop="10dp"
+        android:id="@+id/seekBarHard"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-        <requestFocus />
-    </EditText>
+        android:layout_height="wrap_content" />
 
     <TextView
+        android:layout_gravity="center"
+        android:textSize="15dp"
+        android:id="@+id/seekBarHardProg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"/>
+
+    <TextView
+        android:layout_marginTop="10dp"
         android:id="@+id/tv_width"
         android:textSize="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ширина"
+        android:text="Количество элементов"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
-        android:id="@+id/input_width"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </EditText>
-
-    <TextView
-        android:id="@+id/tv_height"
-        android:textSize="20dp"
+    <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Высота"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:orientation="horizontal"
+        android:id="@+id/radioPiec">
 
-    <EditText
-        android:id="@+id/input_height"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </EditText>
+        <RadioButton
+            android:id="@+id/radio16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="16"
+            android:textSize="15dp"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio36"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:textSize="15dp"
+            android:text="36" />
+
+        <RadioButton
+            android:id="@+id/radio64"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:textSize="15dp"
+            android:text="64" />
+    </RadioGroup>
 
     <TextView
+        android:layout_marginTop="10dp"
         android:id="@+id/tv_form"
         android:textSize="20dp"
         android:layout_width="wrap_content"
@@ -60,7 +83,7 @@
 
     <RadioGroup
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/radioGr">
 
         <RadioButton
@@ -68,21 +91,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onRadioButtonClicked"
-            android:text="Треугольник" />
+            android:text="Треугольник"
+            android:textSize="15dp"
+            android:checked="true" />
 
         <RadioButton
             android:id="@+id/radioSquare"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onRadioButtonClicked"
-            android:text="Квадрат" />
+            android:text="Квадрат"
+            android:textSize="15dp"/>
 
         <RadioButton
             android:id="@+id/radioFigure"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onRadioButtonClicked"
-            android:text="Фигура" />
+            android:text="Фигура"
+            android:textSize="15dp"/>
     </RadioGroup>
 
 </LinearLayout>
