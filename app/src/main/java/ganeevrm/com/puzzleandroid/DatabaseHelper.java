@@ -16,10 +16,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID_L = "_id";
     /**Столбец - level*/
     public static final String COLUMN_LEVEL = "hard";
-    /**Столбец - width*/
-    public static final String COLUMN_WIDTH = "width";
-    /**Столбец - height*/
-    public static final String COLUMN_HEIGHT = "height";
+    /**Столбец - col_pieces*/
+    public static final String COLUMN_COL_PIECES = "col_pieces";
     /**Столбец - form*/
     public static final String COLUMN_FORM = "form";
 
@@ -44,10 +42,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**Столбец - password*/
     public static final String COLUMN_PASSWORD = "password";
 
+    /**Таблица игр в БД*/
+    public static final String TABLE_GAME = "games";
+    /**Столбец - _id*/
+    public static final String COLUMN_ID_G = "_id";
+    /**Столбец - _id_pic*/
+    public static final String COLUMN_PIC_ID = "_id_pic";
+    /**Столбец - _id_level*/
+    public static final String COLUMN_LEVEL_ID = "_id_level";
+    /**Столбец - link_pick_g*/
+    public static final String COLUMN_LINK_PIC_G = "link_pick_g";
+    /**Столбец - level_g*/
+    public static final String COLUMN_LEVEL_G = "level_g";
+    /**Столбец - col_pieces_g*/
+    public static final String COLUMN_COL_PIECES_G = "col_pieces_g";
+    /**Столбец - form_g*/
+    public static final String COLUMN_FORM_G = "form_g";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, SCHEMA);
     }
 
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        db.setForeignKeyConstraintsEnabled(true);
+    }
     //Если база данных отсутствует или ее версия (которая задается в переменной SCHEMA) выше текущей,
     // то срабатывает метод onCreate()
     @Override
@@ -57,22 +77,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE users (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_BLOCK + " INTEGER," + COLUMN_LOGIN + " TEXT UNIQUE," + COLUMN_PASSWORD + " TEXT);");
         //Добавление начальных данных
         db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'admin', 'admin');");
+        db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'Сергей', 'Сергей');");
+        db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'Андрей', 'Андрей');");
+        db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'Мария', 'Мария');");
+        db.execSQL("INSERT INTO "+ TABLE +" (" + COLUMN_BLOCK + ", " + COLUMN_LOGIN + ", " + COLUMN_PASSWORD  + ") VALUES (0, 'Виктор', 'Виктор');");
 
         //Создание таблицы картинок с колонками
         db.execSQL("CREATE TABLE picture (" + COLUMN_ID_P + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LINK + " TEXT UNIQUE," + COLUMN_COMPLEXITY + " INTEGER);");
         //Добавление начальных данных
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/bobby-burch-145906-unsplash.jpg', 1);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/macie-jones-287939-unsplash.jpg', 2);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/ricardo-gomez-angel-273521-unsplash.jpg', 2);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/spencer-bryan-1891-unsplash.jpg', 3);");
-        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('//android_asset/img/yuriy-garnaev-395879-unsplash.jpg', 2);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('/android_asset/img/1_pic.jpg', 1);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('/android_asset/img/2_pic.jpg', 4);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('/android_asset/img/3_pic.jpg', 4);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('/android_asset/img/4_pic.jpg', 4);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('/android_asset/img/5_pic.jpg', 10);");
+        db.execSQL("INSERT INTO "+ TABLE_PICTURE +" (" + COLUMN_LINK + ", " + COLUMN_COMPLEXITY  + ") VALUES ('/android_asset/img/6_pic.jpg', 10);");
 
         //Создание таблицы уровней с колонками
-        db.execSQL("CREATE TABLE level (" + COLUMN_ID_L + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LEVEL + " INTEGER," + COLUMN_WIDTH + " INTEGER," + COLUMN_HEIGHT + " INTEGER," + COLUMN_FORM + " TEXT);");
+        db.execSQL("CREATE TABLE level (" + COLUMN_ID_L + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"  + COLUMN_LEVEL + " INTEGER UNIQUE," + COLUMN_COL_PIECES + " INTEGER," + COLUMN_FORM + " TEXT);");
         //Добавление начальных данных
-        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_WIDTH  + ", " + COLUMN_HEIGHT  + ", " + COLUMN_FORM  + ") VALUES (1, 4, 3, 'Квадрат');");
-        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_WIDTH  + ", " + COLUMN_HEIGHT  + ", " + COLUMN_FORM  + ") VALUES (2, 5, 4, 'Треугольник');");
-        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_WIDTH  + ", " + COLUMN_HEIGHT  + ", " + COLUMN_FORM  + ") VALUES (3, 6, 6, 'Фигурный');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_COL_PIECES  + ", " + COLUMN_FORM  + ") VALUES (1, 16, 'Квадрат');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_COL_PIECES  + ", " + COLUMN_FORM  + ") VALUES (3, 36, 'Квадрат');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_COL_PIECES  + ", " + COLUMN_FORM  + ") VALUES (5, 64, 'Квадрат');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_COL_PIECES  + ", " + COLUMN_FORM  + ") VALUES (7, 36, 'Треугольник');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_COL_PIECES  + ", " + COLUMN_FORM  + ") VALUES (9, 64, 'Треугольник');");
+        db.execSQL("INSERT INTO "+ TABLE_LEVEL +" (" + COLUMN_LEVEL + ", " + COLUMN_COL_PIECES  + ", " + COLUMN_FORM  + ") VALUES (10, 64, 'Фигура');");
+
+        //Создание таблицы игр с колонками
+        db.execSQL("CREATE TABLE games (" + COLUMN_ID_G + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "  + COLUMN_PIC_ID + " INTEGER NOT NULL, " + COLUMN_LEVEL_ID + " INTEGER NOT NULL, "
+                + COLUMN_LINK_PIC_G + " TEXT, " + COLUMN_LEVEL_G + " INTEGER, "
+                + COLUMN_COL_PIECES_G + " INTEGER, " + COLUMN_FORM_G + " TEXT, " + "FOREIGN KEY (_id_level) REFERENCES level(_id), "  + "FOREIGN KEY (_id_pic) REFERENCES picture(_id));");
+
+        db.execSQL("INSERT INTO "+ TABLE_GAME +" (" + COLUMN_PIC_ID + ", " + COLUMN_LEVEL_ID  + ", " + COLUMN_LINK_PIC_G + ", " + COLUMN_LEVEL_G + ", " + COLUMN_COL_PIECES_G + ", " + COLUMN_FORM_G +") VALUES (1, 1, '/android_asset/img/1_pic.jpg', 1, 16, 'Квадрат');");
+        db.execSQL("INSERT INTO "+ TABLE_GAME +" (" + COLUMN_PIC_ID + ", " + COLUMN_LEVEL_ID  + ", " + COLUMN_LINK_PIC_G + ", " + COLUMN_LEVEL_G + ", " + COLUMN_COL_PIECES_G + ", " + COLUMN_FORM_G +") VALUES (4, 4, '/android_asset/img/4_pic.jpg', 7, 36, 'Треугольник');");
+        db.execSQL("INSERT INTO "+ TABLE_GAME +" (" + COLUMN_PIC_ID + ", " + COLUMN_LEVEL_ID  + ", " + COLUMN_LINK_PIC_G + ", " + COLUMN_LEVEL_G + ", " + COLUMN_COL_PIECES_G + ", " + COLUMN_FORM_G +") VALUES (6, 6, '/android_asset/img/6_pic.jpg', 10, 64, 'Фигура');");
     }
 
     //Обновление БД. Примитивный подход с удалением предыдущей БД (таблицы)
