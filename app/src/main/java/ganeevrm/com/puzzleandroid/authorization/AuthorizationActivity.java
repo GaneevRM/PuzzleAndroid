@@ -20,8 +20,11 @@ public class AuthorizationActivity extends AppCompatActivity {
     private EditText loginField;
     /**Введите пароль*/
     private EditText passField;
+    /**Helper*/
     private DatabaseHelper databaseHelper;
+    /**БД*/
     private SQLiteDatabase db;
+    /**Курсор пользователей*/
     private Cursor userCursor;
 
     @Override
@@ -37,16 +40,25 @@ public class AuthorizationActivity extends AppCompatActivity {
         db = databaseHelper.getReadableDatabase();
     }
 
+    /**
+     * Нажатие кнопки входа
+     * @param view - View
+     */
     public void onInput(View view) {
         //Получаем данные из БД в виде курсора
         userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE, null);
+        //Ставим курсор на первую запись
         if(userCursor.moveToFirst()){
+            //Наличие регистрации
             boolean registration = true;
             do{
+                //Блокировка пользователя
                 int block = userCursor.getInt(1);
+                //Логин пользователя
                 String login = userCursor.getString(2);
+                //Пароль пользователя
                 String pass = userCursor.getString(3);
-                //Если игрок, то открываем активити с меню для админа
+                //Если админ, то открываем активити с меню для админа
                 if ((loginField.getText().toString().equals("admin")) && (passField.getText().toString().equals("admin"))) {
                     Toast.makeText(getApplicationContext(), "Добро пожаловать Admin", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, MainAdminActivity.class);
@@ -75,6 +87,10 @@ public class AuthorizationActivity extends AppCompatActivity {
         userCursor.close();
     }
 
+    /**
+     * Нажатие кнопки регистрации
+     * @param view - View
+     */
     public void onRegistration(View view){
         Intent intent = new Intent(this, RegistrationActivity.class);
         startActivity(intent);
