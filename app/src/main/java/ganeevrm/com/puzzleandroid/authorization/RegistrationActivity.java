@@ -24,9 +24,11 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText loginField;
     /**Введите пароль*/
     private EditText passField;
-
+    /**Helper*/
     private DatabaseHelper databaseHelper;
+    /**БД*/
     private SQLiteDatabase db;
+    /**Курсор пользователей*/
     private Cursor userCursor;
 
 
@@ -44,14 +46,22 @@ public class RegistrationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Нажатие кнопки "Отмена"
+     * @param view - View
+     */
     public void onBack(View view){
         finish();
     }
 
+    /**
+     * Нажатие кнопки "Подтвердить"
+     * @param view - View
+     */
     public void onOk(View view) {
         //Получаем данные из БД в виде курсора
         userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE, null);
-
+        //Проверка на условия
         if ((loginField.getText().length()<4)){
             Toast.makeText(getApplicationContext(), "Минимальная длина"+"\n"+ "логина 4 символа", Toast.LENGTH_SHORT).show();
         } else if ((loginField.getText().length()>10)){
@@ -61,8 +71,9 @@ public class RegistrationActivity extends AppCompatActivity {
         }else if ((passField.getText().length()>8)){
             Toast.makeText(getApplicationContext(), "Максимальная длина"+"\n"+ "пароля 8 символов", Toast.LENGTH_SHORT).show();
         }else {
-
+            //Ставим курсор на первую запись
             if (userCursor.moveToFirst()) {
+                //Наличие дубликата
                 boolean duplicate = false;
                 do {
                     String login = userCursor.getString(2);
@@ -74,6 +85,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     }
                 }
                 while (userCursor.moveToNext());
+                //Если дубликата нет, то заносим данные в БД и запускаем активити
                 if (!duplicate) {
                     ContentValues cv = new ContentValues();
                     cv.put(DatabaseHelper.COLUMN_LOGIN, loginField.getText().toString());
