@@ -16,11 +16,19 @@ public class MainAdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_admin);
     }
 
+    /**
+     * Нажатие кнопки "Учетные записи"
+     * @param view - View
+     */
     public void onAccounts(View view) {
         Intent intent = new Intent(this, AccountsActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Нажатие кнопки "Работа с играми"
+     * @param view - View
+     */
     public void onGame(View view) {
         Intent gameIntent = new Intent(this, GameMenuActivity.class);
         gameIntent.putExtra("Who","admin");
