@@ -1,5 +1,6 @@
 package ganeevrm.com.puzzleandroid.admin;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -20,13 +21,19 @@ import ganeevrm.com.puzzleandroid.DatabaseHelper;
 import ganeevrm.com.puzzleandroid.R;
 
 public class AccountsActivity extends AppCompatActivity {
-
+    /**GridView для аккаунтов*/
     private GridView userGrid;
-    private TextView header;
+    /**Надпись "Найдено элементов:"*/
+    private TextView searchText;
+    /**Helper*/
     private DatabaseHelper databaseHelper;
+    /**БД*/
     private SQLiteDatabase db;
+    /**Курсор пользователей*/
     private Cursor userCursor;
+    /**Наличие нажатия на элемент GridView*/
     private boolean click;
+    /**id выбранного аккаунта*/
     private long selectUser;
 
     @Override
@@ -34,11 +41,11 @@ public class AccountsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accounts);
 
-        header = findViewById(R.id.header);
-        userGrid = findViewById(R.id.usergrid);
+        searchText = findViewById(R.id.searchText);
+        userGrid = findViewById(R.id.userGrid);
 
         databaseHelper = new DatabaseHelper(getApplicationContext());
-
+        //Создаём Listener
         AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
 
             @Override
@@ -47,9 +54,11 @@ public class AccountsActivity extends AppCompatActivity {
                 selectUser = id;
             }
         };
+        //Устанавливаем Listener на userGrid
         userGrid.setOnItemClickListener(itemListener);
     }
 
+    @SuppressLint("SetTextI18n")
     public void onResume() {
         super.onResume();
         //Открываем подключение
@@ -61,12 +70,18 @@ public class AccountsActivity extends AppCompatActivity {
         String[] headers = new String[] {DatabaseHelper.COLUMN_LOGIN, DatabaseHelper.COLUMN_PASSWORD};
         //Создаем адаптер, передаем в него курсор
         SimpleCursorAdapter userAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_expandable_list_item_2, userCursor, headers, new int[]{android.R.id.text1, android.R.id.text2}, 0);
-        header.setText("Найдено элементов: " + userCursor.getCount());
+        searchText.setText("Найдено элементов: " + userCursor.getCount());
         userGrid.setAdapter(userAdapter);
     }
 
+    /**
+     * Нажатие кнопки "Удалить"
+     * @param view - View
+     */
     public void onDelete(View view){
+        //Проверка на наличие нажатия
         if(click){
+            //Если выбран первый аккаунт
             if(selectUser == 1){
                 Toast.makeText(getApplicationContext(), "Администратора нельзя удалить", Toast.LENGTH_SHORT).show();
             }else {
@@ -78,14 +93,20 @@ public class AccountsActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Нажатие кнопки "Блокировать"
+     * @param view - View
+     */
     public void onBlock(View view){
+        //Проверка на наличие нажатия
         if(click){
+            //Если выбран первый аккаунт
             if(selectUser == 1){
                 Toast.makeText(getApplicationContext(), "Администратора нельзя заблокировать", Toast.LENGTH_SHORT).show();
             }else {
                 ContentValues cv = new ContentValues();
                 cv.put(DatabaseHelper.COLUMN_BLOCK, 1);
-                db.update(DatabaseHelper.TABLE, cv, DatabaseHelper.COLUMN_ID + "=" + String.valueOf(selectUser), null);
+                db.update(DatabaseHelper.TABLE, cv, DatabaseHelper.COLUMN_ID + "=" + selectUser, null);
                 Toast.makeText(getApplicationContext(), "Пользователь заблокирован", Toast.LENGTH_SHORT).show();
                 recreate();
             }
@@ -93,6 +114,11 @@ public class AccountsActivity extends AppCompatActivity {
         } else Toast.makeText(getApplicationContext(), "Выберите пользователя", Toast.LENGTH_SHORT).show();
 
     }
+
+    /**
+     * Нажатие кнопки "Добавить"
+     * @param view - View
+     */
     public void onAdd(View view){
         //Получаем вид с файла prompt.xml, который применим для диалогового окна:
         LayoutInflater li = LayoutInflater.from(this);
