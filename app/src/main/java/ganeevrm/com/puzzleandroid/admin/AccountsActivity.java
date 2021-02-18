@@ -23,6 +23,8 @@ import ganeevrm.com.puzzleandroid.R;
 public class AccountsActivity extends AppCompatActivity {
     /**GridView для аккаунтов*/
     private GridView userGrid;
+    /**Адаптер*/
+    private SimpleCursorAdapter userAdapter;
     /**Надпись "Найдено элементов:"*/
     private TextView searchText;
     /**Helper*/
@@ -69,7 +71,7 @@ public class AccountsActivity extends AppCompatActivity {
         //Определяем, какие столбцы из курсора будут выводиться в ListView
         String[] headers = new String[] {DatabaseHelper.COLUMN_LOGIN, DatabaseHelper.COLUMN_PASSWORD};
         //Создаем адаптер, передаем в него курсор
-        SimpleCursorAdapter userAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_expandable_list_item_2, userCursor, headers, new int[]{android.R.id.text1, android.R.id.text2}, 0);
+        userAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_expandable_list_item_2, userCursor, headers, new int[]{android.R.id.text1, android.R.id.text2}, 0);
         searchText.setText("Найдено элементов: " + userCursor.getCount());
         userGrid.setAdapter(userAdapter);
     }
@@ -148,7 +150,9 @@ public class AccountsActivity extends AppCompatActivity {
                                     cv.put(DatabaseHelper.COLUMN_PASSWORD, passwordInput.getText().toString());
                                     db.insert(DatabaseHelper.TABLE, null, cv);
                                     Toast.makeText(getApplicationContext(), "Пользователь добавлен", Toast.LENGTH_SHORT).show();
-                                    recreate();
+                                    //Обновляем курсор и адаптер (requery устарел, поэтому нужно будет исправить)
+                                    userCursor.requery();
+                                    userAdapter.notifyDataSetChanged();
                                 }else Toast.makeText(getApplicationContext(), "Данные не введены", Toast.LENGTH_SHORT).show();
                             }
                         })
@@ -162,7 +166,7 @@ public class AccountsActivity extends AppCompatActivity {
         //Создаем AlertDialog:
         AlertDialog alertDialog = mDialogBuilder.create();
 
-        //и отображаем его:
+        //И отображаем его:
         alertDialog.show();
     }
 
