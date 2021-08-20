@@ -43,6 +43,7 @@ import ganeevrm.com.puzzleandroid.game.PuzzleActivity;
 public class GameMenuActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private SQLiteDatabase db;
+
     private Cursor gameCursor;
     private Cursor picCursor;
     private Cursor levelCursor;
@@ -115,10 +116,10 @@ public class GameMenuActivity extends AppCompatActivity {
             adminLayout.setVisibility(View.VISIBLE);
             userLayout.setVisibility(View.GONE);
         }
-        // формируем столбцы сопоставления
+        //Формируем столбцы сопоставления
         String[] from = new String[] { DatabaseHelper.COLUMN_LINK_PIC_G, DatabaseHelper.COLUMN_LEVEL_G, DatabaseHelper.COLUMN_COL_PIECES_G, DatabaseHelper.COLUMN_FORM_G };
         int[] to = new int[] { R.id.imageViewGame, R.id.tv_level_info, R.id.tv_piec_info, R.id.tv_form_info };
-        // создааем адаптер и настраиваем список
+        //Создаем адаптер и настраиваем список
         scAdapter = new SimpleCursorAdapter(this, R.layout.list_game_item, gameCursor, from, to, 0);
         scAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder(){
 
