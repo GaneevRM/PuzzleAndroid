@@ -62,24 +62,31 @@ public class GameMenuActivity extends AppCompatActivity {
     ImageView imageViewGame;
     TextView tvheader;
 
+    /**Для получения значения из Bundle*/
     private String who;
+    /**Интерфейс для админа*/
     private LinearLayout adminLayout;
+    /**Интерфейс для игрока*/
     private LinearLayout userLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_menu);
+
         adminLayout = findViewById(R.id.adminLayout);
         userLayout = findViewById(R.id.userLayout);
         gameList = findViewById(R.id.gameList);
         imageViewGame = findViewById(R.id.imageViewGame);
         tvheader = findViewById(R.id.header);
         databaseHelper = new DatabaseHelper(getApplicationContext());
+        
         db = databaseHelper.getReadableDatabase();
         gameCursor = db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_GAME, null);
+
         Bundle arguments = getIntent().getExtras();
         who = (String) arguments.get("Who");
+
         AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
 
             @Override
