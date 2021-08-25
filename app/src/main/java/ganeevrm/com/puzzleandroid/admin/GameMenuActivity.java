@@ -41,7 +41,9 @@ import ganeevrm.com.puzzleandroid.gallery.GlideGalleryActivity;
 import ganeevrm.com.puzzleandroid.game.PuzzleActivity;
 
 public class GameMenuActivity extends AppCompatActivity {
+    /**Helper*/
     private DatabaseHelper databaseHelper;
+    /**БД*/
     private SQLiteDatabase db;
 
     private Cursor gameCursor;
@@ -58,8 +60,9 @@ public class GameMenuActivity extends AppCompatActivity {
     private int positionList = -1;
     private long gameid = 0;
 
+    /**Список игр*/
     ListView gameList;
-    ImageView imageViewGame;
+    /**Текст с количеством игр*/
     TextView tvheader;
 
     /**Для получения значения из Bundle*/
@@ -77,13 +80,15 @@ public class GameMenuActivity extends AppCompatActivity {
         adminLayout = findViewById(R.id.adminLayout);
         userLayout = findViewById(R.id.userLayout);
         gameList = findViewById(R.id.gameList);
-        imageViewGame = findViewById(R.id.imageViewGame);
         tvheader = findViewById(R.id.header);
+
         databaseHelper = new DatabaseHelper(getApplicationContext());
-        
+        //Открываем подключение
         db = databaseHelper.getReadableDatabase();
+        //Получаем список игр из БД в курсор
         gameCursor = db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_GAME, null);
 
+        //Присваиваем значение who
         Bundle arguments = getIntent().getExtras();
         who = (String) arguments.get("Who");
 
