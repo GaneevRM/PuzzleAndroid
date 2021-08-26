@@ -92,11 +92,15 @@ public class GameMenuActivity extends AppCompatActivity {
         Bundle arguments = getIntent().getExtras();
         who = (String) arguments.get("Who");
 
+        //Создаём Listener
         AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 gameCursor.moveToPosition(position);
+                //При клике на элемент списка проверяем булеву переменную, чтобы
+                //была выбрана только одна игра. Далее окрашиваем элемент в серый цвет,
+                //сохраняем позицию и id игры, изменяем значение булевой переменной
                 if(!click){
                     v.setBackgroundColor(Color.LTGRAY);
                     positionList = position;
@@ -104,15 +108,19 @@ public class GameMenuActivity extends AppCompatActivity {
                     click = true;
                     tvheader.setText("Выбрана игра: " + (positionList+1));
                 }else {
+                    //Если клик был произведён по уже выбранному элементу, то
+                    //убираем цвет и сбрасываем все значения переменных
                     if (position == positionList) {
                         v.setBackgroundColor(Color.TRANSPARENT);
                         positionList = -1;
+                        gameid = 0;
                         click = false;
                         tvheader.setText("Найдено элементов: " + gameCursor.getCount());
                     }
                 }
             }
         };
+        //Устанаваливаем Listener у gameList
         gameList.setOnItemClickListener(itemListener);
     }
 
