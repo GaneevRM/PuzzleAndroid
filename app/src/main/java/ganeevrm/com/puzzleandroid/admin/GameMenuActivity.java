@@ -129,6 +129,8 @@ public class GameMenuActivity extends AppCompatActivity {
         super.onResume();
         positionList=-1;
         click=false;
+
+        //Меняем интерфейс в зависимоти от значения who
         if(who.equals("user")){
             adminLayout.setVisibility(View.GONE);
             userLayout.setVisibility(View.VISIBLE);
@@ -136,11 +138,13 @@ public class GameMenuActivity extends AppCompatActivity {
             adminLayout.setVisibility(View.VISIBLE);
             userLayout.setVisibility(View.GONE);
         }
+
         //Формируем столбцы сопоставления
         String[] from = new String[] { DatabaseHelper.COLUMN_LINK_PIC_G, DatabaseHelper.COLUMN_LEVEL_G, DatabaseHelper.COLUMN_COL_PIECES_G, DatabaseHelper.COLUMN_FORM_G };
         int[] to = new int[] { R.id.imageViewGame, R.id.tv_level_info, R.id.tv_piec_info, R.id.tv_form_info };
         //Создаем адаптер и настраиваем список
         scAdapter = new SimpleCursorAdapter(this, R.layout.list_game_item, gameCursor, from, to, 0);
+        //Назначаем свой обработчик
         scAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder(){
 
             @Override
@@ -167,6 +171,7 @@ public class GameMenuActivity extends AppCompatActivity {
                 return false;
             }
         });
+        //Устанаваливаем адаптер у gameList
         gameList.setAdapter(scAdapter);
         tvheader.setText("Найдено элементов: " + gameCursor.getCount());
     }
@@ -192,17 +197,39 @@ public class GameMenuActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Обновление БД", Toast.LENGTH_SHORT).show();
                 picCursor.close();
                 levelCursor.close();
-                gameCursor.requery();
-                scAdapter.notifyDataSetChanged();
+                gameCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_GAME);
+                scAdapter.changeCursor(gameCursor);
             }
         }
     }
 
+    /**
+     * Нажатие кнопки "Добавить"
+     * @param view - View
+     */
     public void onAdd(View view) {
-
         Intent galleryIntent = new Intent(this, GlideGalleryActivity.class);
-       // galleryIntent.putExtra("level", selectLevel );
         startActivityForResult(galleryIntent, CHOOSE_IDS);
+    }
+
+    /**
+     * Нажатие кнопки "Удалить"
+     * @param view - View
+     */
+    public void onDel(View view) {
+        if(!click){
+            Toast.makeText(getApplicationContext(), "Выберите игру", Toast.LENGTH_SHORT).show();
+        }else {
+            //Извлекаем id записи и удаляем соответствующую запись в БД
+            db.delete(DatabaseHelper.TABLE_GAME, "_id = ?", new String[]{String.valueOf(gameid)});
+            Toast.makeText(getApplicationContext(), "Игра удалена", Toast.LENGTH_SHORT).show();
+            //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
+            gameCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_GAME);
+            tvheader.setText("Найдено элементов: " + gameCursor.getCount());
+            scAdapter.changeCursor(gameCursor);
+            positionList=-1;
+            click=false;
+        }
     }
 
     public void onRadioButtonClicked(View view) {
@@ -303,22 +330,6 @@ public class GameMenuActivity extends AppCompatActivity {
             intent.putExtra("type", selectRadioType);
             intent.putExtra("mode", selectRadioMode);
             startActivity(intent);
-        }
-    }
-
-    public void onDel(View view) {
-        if(tvheader.getText().toString().contains("Найдено")){
-            Toast.makeText(getApplicationContext(), "Выберите игру", Toast.LENGTH_SHORT).show();
-        }else {
-            //Извлекаем id записи и удаляем соответствующую запись в БД
-            db.delete(DatabaseHelper.TABLE_GAME, "_id = ?", new String[]{String.valueOf(gameid)});
-            Toast.makeText(getApplicationContext(), "Игра удалена", Toast.LENGTH_SHORT).show();
-            //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
-            gameCursor.requery();
-            tvheader.setText("Найдено элементов: " + gameCursor.getCount());
-            scAdapter.notifyDataSetChanged();
-            positionList=-1;
-            click=false;
         }
     }
 
