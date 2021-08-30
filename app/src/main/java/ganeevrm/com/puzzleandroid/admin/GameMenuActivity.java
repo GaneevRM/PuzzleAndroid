@@ -49,7 +49,9 @@ public class GameMenuActivity extends AppCompatActivity {
     private Cursor gameCursor;
     private Cursor picCursor;
     private Cursor levelCursor;
+    /**Выбранный RadioButton в диалоговом окне "Тип подсчёта"*/
     private int selectRadioType = 0;
+    /**Выбранный RadioButton в диалоговом окне "Режим сборки"*/
     private int selectRadioMode = 0;
     private SimpleCursorAdapter scAdapter;
 
@@ -232,10 +234,73 @@ public class GameMenuActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Нажатие кнопки "Режим сборки"
+     * @param view - View
+     */
+    public void onBuild(View view) {
+        //Получаем вид с файла context_build.xml, который применим для диалогового окна:
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.context_build, null);
+
+        //Создаем AlertDialog.Builder
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
+
+        //Назначаем AlertDialog.Builder вид из context_build.xml
+        mDialogBuilder.setView(promptsView);
+
+        //Настраиваем отображение трёх RadioButton
+        final RadioButton rbField = promptsView.findViewById(R.id.onField);
+        final RadioButton rbHeap = promptsView.findViewById(R.id.onHeap);
+        final RadioButton rbTape = promptsView.findViewById(R.id.onTape);
+
+        switch (selectRadioMode) {
+            case 0:
+                rbField.setChecked(true);
+                onRadioButtonClicked(rbField);
+                break;
+            case 1:
+                rbHeap.setChecked(true);
+                onRadioButtonClicked(rbHeap);
+                break;
+            case 2:
+                rbTape.setChecked(true);
+                onRadioButtonClicked(rbTape);
+                break;
+        }
+
+        //Настраиваем сообщение в диалоговом окне:
+        mDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                Toast.makeText(getApplicationContext(), "Режим выбран", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                .setNegativeButton("Отмена",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        //Создаем AlertDialog:
+        AlertDialog alertDialog = mDialogBuilder.create();
+
+        //и отображаем его:
+        alertDialog.show();
+    }
+
+    /**
+     * Обработка включения RadioButton
+     * @param view - View
+     */
     public void onRadioButtonClicked(View view) {
-        // если переключатель отмечен
+        //Если RadioButton включен
         boolean checked = ((RadioButton) view).isChecked();
-        // Получаем нажатый переключатель
+        //Получаем id нажатого RadioButton и присваиваем значение
+        //переменной selectRadioType или selectRadioMode
         switch(view.getId()) {
             case R.id.onTime:
                 if (checked){
@@ -331,59 +396,5 @@ public class GameMenuActivity extends AppCompatActivity {
             intent.putExtra("mode", selectRadioMode);
             startActivity(intent);
         }
-    }
-
-    public void onBuild(View view) {
-        //Получаем вид с файла prompt.xml, который применим для диалогового окна:
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.context_build, null);
-
-        //Создаем AlertDialog
-        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
-
-        //Настраиваем prompt.xml для нашего AlertDialog:
-        mDialogBuilder.setView(promptsView);
-
-        //Настраиваем отображение поля для ввода текста в открытом диалоге:
-        final RadioButton rbField = promptsView.findViewById(R.id.onField);
-        final RadioButton rbHeap = promptsView.findViewById(R.id.onHeap);
-        final RadioButton rbTape = promptsView.findViewById(R.id.onTape);
-
-        switch (selectRadioMode) {
-            case 0:
-                rbField.setChecked(true);
-                onRadioButtonClicked(rbField);
-                break;
-            case 1:
-                rbHeap.setChecked(true);
-                onRadioButtonClicked(rbHeap);
-                break;
-            case 2:
-                rbTape.setChecked(true);
-                onRadioButtonClicked(rbTape);
-                break;
-        }
-
-        //Настраиваем сообщение в диалоговом окне:
-        mDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                Toast.makeText(getApplicationContext(), "Режим выбран", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                .setNegativeButton("Отмена",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        //Создаем AlertDialog:
-        AlertDialog alertDialog = mDialogBuilder.create();
-
-        //и отображаем его:
-        alertDialog.show();
     }
 }
