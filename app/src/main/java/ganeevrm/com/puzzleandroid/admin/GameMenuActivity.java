@@ -55,9 +55,8 @@ public class GameMenuActivity extends AppCompatActivity {
     private int selectRadioMode = 0;
     private SimpleCursorAdapter scAdapter;
 
+    /**Константа для использования в качестве requestCode*/
     static final private int CHOOSE_IDS = 0;
-    private long idLevel = -1;
-    private long idPic = 0;
     private boolean click = false;
     private int positionList = -1;
     private long gameid = 0;
@@ -180,10 +179,13 @@ public class GameMenuActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //Если вызов прошел успешно и requestCode равен константе CHOOSE_IDS,
+        //то получаем данные для idLevel и idPic
         if(requestCode == CHOOSE_IDS && resultCode == RESULT_OK){
-            idLevel = data.getLongExtra("idlevel",0);
-            idPic = data.getLongExtra("idpic",0);
-            if(!(idLevel==-1||idPic==0)){
+            long idLevel = data.getLongExtra("idlevel", -1);
+            long idPic = data.getLongExtra("idpic", 0);
+            //Если выбрана и картинка и уровень, то создаем запись с новой игрой в таблице games
+            if(!(idLevel == -1 || idPic == 0)){
                 picCursor = db.query("picture", new String[] {"_id","link"}, "_id=?", new String[]{String.valueOf(idPic)},null,null,null);
                 picCursor.moveToFirst();
                 levelCursor = db.query("level", new String[] {"_id","hard","col_pieces","form"}, "_id=?", new String[]{String.valueOf(idLevel)},null,null,null);
@@ -225,7 +227,6 @@ public class GameMenuActivity extends AppCompatActivity {
             //Извлекаем id записи и удаляем соответствующую запись в БД
             db.delete(DatabaseHelper.TABLE_GAME, "_id = ?", new String[]{String.valueOf(gameid)});
             Toast.makeText(getApplicationContext(), "Игра удалена", Toast.LENGTH_SHORT).show();
-            //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
             gameCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_GAME);
             tvheader.setText("Найдено элементов: " + gameCursor.getCount());
             scAdapter.changeCursor(gameCursor);
@@ -330,20 +331,25 @@ public class GameMenuActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Нажатие кнопки "Тип подсчёта"
+     * @param view - View
+     */
     public void onType(View view) {
-        //Получаем вид с файла prompt.xml, который применим для диалогового окна:
+        //Получаем вид с файла context_type.xml, который применим для диалогового окна:
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.context_type, null);
 
-        //Создаем AlertDialog
+        //Создаем AlertDialog.Builder
         AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
 
-        //Настраиваем prompt.xml для нашего AlertDialog:
+        //Назначаем AlertDialog.Builder вид из context_build.xml
         mDialogBuilder.setView(promptsView);
 
-        //Настраиваем отображение поля для ввода текста в открытом диалоге:
+        //Настраиваем отображение двух RadioButton
         final RadioButton rbTime = promptsView.findViewById(R.id.onTime);
         final RadioButton rbScore = promptsView.findViewById(R.id.onScore);
+
         switch (selectRadioType) {
             case 0:
                 rbTime.setChecked(true);
@@ -378,18 +384,25 @@ public class GameMenuActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+    /**
+     * Нажатие кнопки "Начать игру"
+     * @param view - View
+     */
     public void startGame(View view) {
-        if(tvheader.getText().toString().contains("Найдено")){
+        if(!click){
             Toast.makeText(getApplicationContext(), "Выберите игру", Toast.LENGTH_SHORT).show();
         }else {
             gameCursor.moveToPosition(positionList);
             Intent intent = new Intent(this, PuzzleActivity.class);
+            //Передаём полный путь картинки в PuzzleActivity
+            //Ключ меняем в зависимости от пути картинки
             if (gameCursor.getString(3).contains("content") || gameCursor.getString(3).contains("storage")) {
                 intent.putExtra("mCurrentPhotoPath", gameCursor.getString(3));
             } else {
                 String[] word = gameCursor.getString(3).split("/");
                 intent.putExtra("assetName", word[3]);
             }
+            //Передаём остальные значения для последующей обработки
             intent.putExtra("form", gameCursor.getString(6));
             intent.putExtra("colPiec", gameCursor.getInt(5));
             intent.putExtra("type", selectRadioType);
