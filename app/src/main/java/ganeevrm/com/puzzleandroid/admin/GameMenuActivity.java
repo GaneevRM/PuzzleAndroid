@@ -3,23 +3,16 @@ package ganeevrm.com.puzzleandroid.admin;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.ContextMenu;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -29,11 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 import ganeevrm.com.puzzleandroid.DatabaseHelper;
 import ganeevrm.com.puzzleandroid.R;
@@ -128,6 +116,8 @@ public class GameMenuActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        checkDataBase();
+
         positionList=-1;
         click=false;
 
@@ -178,7 +168,30 @@ public class GameMenuActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("GameKek","onStop");
+        if(!gameCursor.isClosed()) gameCursor.close();
+        if (db.isOpen()) {
+            db.close();
+            databaseHelper.close();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("GameKek","onDestroy");
+        if(!gameCursor.isClosed()) gameCursor.close();
+        if (db.isOpen()) {
+            db.close();
+            databaseHelper.close();
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        checkDataBase();
         //Если вызов прошел успешно и requestCode равен константе CHOOSE_IDS,
         //то получаем данные для idLevel и idPic
         if(requestCode == CHOOSE_IDS && resultCode == RESULT_OK){
@@ -204,6 +217,20 @@ public class GameMenuActivity extends AppCompatActivity {
                 gameCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_GAME);
                 scAdapter.changeCursor(gameCursor);
             }
+        }
+    }
+
+    /**
+     * Проверка закрытости бд, курсора и их инициализация
+     */
+    public void checkDataBase(){
+        if(!db.isOpen()){
+            databaseHelper = new DatabaseHelper(getApplicationContext());
+            db = databaseHelper.getReadableDatabase();
+        }
+
+        if (gameCursor.isClosed()){
+            gameCursor = db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_GAME, null);
         }
     }
 
