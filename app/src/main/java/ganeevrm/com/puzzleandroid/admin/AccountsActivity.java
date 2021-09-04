@@ -76,6 +76,26 @@ public class AccountsActivity extends AppCompatActivity {
         userGrid.setAdapter(userAdapter);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(!userCursor.isClosed()) userCursor.close();
+        if (db.isOpen()) {
+            db.close();
+            databaseHelper.close();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(!userCursor.isClosed()) userCursor.close();
+        if (db.isOpen()) {
+            db.close();
+            databaseHelper.close();
+        }
+    }
+
     /**
      * Нажатие кнопки "Удалить"
      * @param view - View
@@ -168,12 +188,5 @@ public class AccountsActivity extends AppCompatActivity {
 
         //И отображаем его:
         alertDialog.show();
-    }
-
-    public void onDestroy(){
-        super.onDestroy();
-        // Закрываем подключение и курсор
-        db.close();
-        userCursor.close();
     }
 }
