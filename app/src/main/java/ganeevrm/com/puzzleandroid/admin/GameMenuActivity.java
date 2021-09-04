@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,8 +34,6 @@ public class GameMenuActivity extends AppCompatActivity {
     private SQLiteDatabase db;
 
     private Cursor gameCursor;
-    private Cursor picCursor;
-    private Cursor levelCursor;
     /**Выбранный RadioButton в диалоговом окне "Тип подсчёта"*/
     private int selectRadioType = 0;
     /**Выбранный RadioButton в диалоговом окне "Режим сборки"*/
@@ -170,7 +167,6 @@ public class GameMenuActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d("GameKek","onStop");
         if(!gameCursor.isClosed()) gameCursor.close();
         if (db.isOpen()) {
             db.close();
@@ -181,7 +177,6 @@ public class GameMenuActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d("GameKek","onDestroy");
         if(!gameCursor.isClosed()) gameCursor.close();
         if (db.isOpen()) {
             db.close();
@@ -199,9 +194,9 @@ public class GameMenuActivity extends AppCompatActivity {
             long idPic = data.getLongExtra("idpic", 0);
             //Если выбрана и картинка и уровень, то создаем запись с новой игрой в таблице games
             if(!(idLevel == -1 || idPic == 0)){
-                picCursor = db.query("picture", new String[] {"_id","link"}, "_id=?", new String[]{String.valueOf(idPic)},null,null,null);
+                Cursor picCursor = db.query("picture", new String[]{"_id", "link"}, "_id=?", new String[]{String.valueOf(idPic)}, null, null, null);
                 picCursor.moveToFirst();
-                levelCursor = db.query("level", new String[] {"_id","hard","col_pieces","form"}, "_id=?", new String[]{String.valueOf(idLevel)},null,null,null);
+                Cursor levelCursor = db.query("level", new String[]{"_id", "hard", "col_pieces", "form"}, "_id=?", new String[]{String.valueOf(idLevel)}, null, null, null);
                 levelCursor.moveToFirst();
                 ContentValues cv = new ContentValues();
                 cv.put(DatabaseHelper.COLUMN_PIC_ID, picCursor.getInt(0));
@@ -434,6 +429,7 @@ public class GameMenuActivity extends AppCompatActivity {
             intent.putExtra("colPiec", gameCursor.getInt(5));
             intent.putExtra("type", selectRadioType);
             intent.putExtra("mode", selectRadioMode);
+            gameCursor.close();
             startActivity(intent);
         }
     }

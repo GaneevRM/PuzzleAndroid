@@ -109,7 +109,8 @@ public class AccountsActivity extends AppCompatActivity {
             }else {
                 db.delete(DatabaseHelper.TABLE, "_id = ?", new String[]{String.valueOf(selectUser)});
                 Toast.makeText(getApplicationContext(), "Пользователь удалён", Toast.LENGTH_SHORT).show();
-                recreate();
+                userCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE);
+                userAdapter.changeCursor(userCursor);
             }
         } else Toast.makeText(getApplicationContext(), "Выберите пользователя", Toast.LENGTH_SHORT).show();
 
@@ -130,7 +131,8 @@ public class AccountsActivity extends AppCompatActivity {
                 cv.put(DatabaseHelper.COLUMN_BLOCK, 1);
                 db.update(DatabaseHelper.TABLE, cv, DatabaseHelper.COLUMN_ID + "=" + selectUser, null);
                 Toast.makeText(getApplicationContext(), "Пользователь заблокирован", Toast.LENGTH_SHORT).show();
-                recreate();
+                userCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE);
+                userAdapter.changeCursor(userCursor);
             }
 
         } else Toast.makeText(getApplicationContext(), "Выберите пользователя", Toast.LENGTH_SHORT).show();
@@ -170,10 +172,9 @@ public class AccountsActivity extends AppCompatActivity {
                                     cv.put(DatabaseHelper.COLUMN_PASSWORD, passwordInput.getText().toString());
                                     db.insert(DatabaseHelper.TABLE, null, cv);
                                     Toast.makeText(getApplicationContext(), "Пользователь добавлен", Toast.LENGTH_SHORT).show();
-                                    //Обновляем курсор и адаптер (requery устарел, поэтому нужно будет исправить)
-                                    userCursor.requery();
-                                    userAdapter.notifyDataSetChanged();
-                                }else Toast.makeText(getApplicationContext(), "Данные не введены", Toast.LENGTH_SHORT).show();
+                                    userCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE);
+                                    userAdapter.changeCursor(userCursor);
+                                } else Toast.makeText(getApplicationContext(), "Данные не введены", Toast.LENGTH_SHORT).show();
                             }
                         })
                 .setNegativeButton("Отмена",
