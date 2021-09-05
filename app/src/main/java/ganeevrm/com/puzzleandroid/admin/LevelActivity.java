@@ -1,85 +1,103 @@
 package ganeevrm.com.puzzleandroid.admin;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.os.Parcelable;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ganeevrm.com.puzzleandroid.DatabaseHelper;
 import ganeevrm.com.puzzleandroid.R;
-import ganeevrm.com.puzzleandroid.gallery.GlideGalleryActivity;
 
 public class LevelActivity extends AppCompatActivity {
-
+    /**Helper*/
     private DatabaseHelper databaseHelper;
+    /**БД*/
     private SQLiteDatabase db;
-    private Cursor userCursor;
-    private long selectLevel;
-    private long idLevel = -1;
-    private TextView tvlevel;
-    private TextView header;
-    private String selectRadio = "Треугольник";
-    private int selectRadioPiec = 16;
+    /**Курсор*/
+    private Cursor levelCursor;
     private SimpleCursorAdapter scAdapter;
-    private static final int CM_DELETE_ID = 1;
-    private static final int CM_EDIT_ID = 2;
-    private int minHard = 1, maxHard = 10, stepHard =1;
+
+    /**Список уровней*/
+    private ListView levelList;
+    /**Текст с номером уровня*/
+    private TextView tvlevel;
+    /**Текст с количеством уровней*/
+    private TextView header;
+
+    /**Вид элемента*/
+    private String selectRadio = "Треугольник";
+    /**Количество элементов пазла*/
+    private int selectRadioPiec = 16;
+
+    /**Выбранный уровень*/
+    private long selectLevel;
+    /**Индикатор выбора одного уровня*/
     private boolean click = false;
+    /**Позиция в списке*/
     private int positionList = -1;
+    /**Id уровня*/
+    private long idLevel = -1;
 
+    /**Константа для контекстного меню ID=1*/
+    private static final int CM_DELETE_ID = 1;
+    /**Константа для контекстного меню ID=2*/
+    private static final int CM_EDIT_ID = 2;
+    /**Минимальная сложность*/
+    private final int minHard = 1;
+    /**Максимальная сложность*/
+    private final int maxHard = 10;
+    /**Шаг сложности*/
+    private final int stepHard = 1;
 
-    ListView levelList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_level);
+
         levelList = findViewById(R.id.levelList);
         tvlevel = findViewById(R.id.tvlevel);
         header = findViewById(R.id.header);
+
         databaseHelper = new DatabaseHelper(getApplicationContext());
-        Bundle arguments = getIntent().getExtras();
-        selectLevel = (long) arguments.get("selectlevel");
         //Открываем подключение
         db = databaseHelper.getReadableDatabase();
         //Получаем данные из бд в виде курсора
-        userCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_LEVEL, null);
+        levelCursor =  db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_LEVEL, null);
+
+        //Присваиваем значение selectLevel
+        Bundle arguments = getIntent().getExtras();
+        selectLevel = (long) arguments.get("selectlevel");
+
+        //Создаём Listener
         AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                userCursor.moveToPosition(position);
+                levelCursor.moveToPosition(position);
+                //При клике на элемент списка проверяем булеву переменную, чтобы
+                //был выбран только один уровень. Далее окрашиваем элемент в серый цвет,
+                //сохраняем позицию и id уровня, изменяем значение булевой переменной
                 if(!click){
                     v.setBackgroundColor(Color.LTGRAY);
                     positionList = position;
-                    idLevel =  userCursor.getInt(0);
-                    selectLevel = userCursor.getInt(1);
+                    idLevel =  levelCursor.getInt(0);
+                    selectLevel = levelCursor.getInt(1);
                     click = true;
                     tvlevel.setText("Выбран уровень: " + selectLevel);
                 }else {
@@ -103,7 +121,7 @@ public class LevelActivity extends AppCompatActivity {
         String[] from = new String[] { DatabaseHelper.COLUMN_LEVEL, DatabaseHelper.COLUMN_COL_PIECES, DatabaseHelper.COLUMN_FORM };
         int[] to = new int[] { R.id.level, R.id.col_pieces, R.id.form };
         // создааем адаптер и настраиваем список
-        scAdapter = new SimpleCursorAdapter(this, R.layout.list_level_item, userCursor, from, to, 0);
+        scAdapter = new SimpleCursorAdapter(this, R.layout.list_level_item, levelCursor, from, to, 0);
         levelList.setAdapter(scAdapter);
         //Назначаем контекстное меню для листа
         registerForContextMenu(levelList);
@@ -112,8 +130,8 @@ public class LevelActivity extends AppCompatActivity {
         }else{
             tvlevel.setText("Выбран уровень: " + selectLevel);
         }
-        header.setText("Найдено элементов: " + userCursor.getCount());
-        userCursor.requery();
+        header.setText("Найдено элементов: " + levelCursor.getCount());
+        levelCursor.requery();
     }
 
     //Создание контекстного меню для списка
@@ -136,8 +154,8 @@ public class LevelActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Сначала удалите игру", Toast.LENGTH_SHORT).show();
             }
             //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
-            userCursor.requery();
-            header.setText("Найдено элементов: " + userCursor.getCount());
+            levelCursor.requery();
+            header.setText("Найдено элементов: " + levelCursor.getCount());
             scAdapter.notifyDataSetChanged();
             return true;
         }
@@ -146,7 +164,7 @@ public class LevelActivity extends AppCompatActivity {
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             onEditContext(acmi);
             //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
-            userCursor.requery();
+            levelCursor.requery();
             scAdapter.notifyDataSetChanged();
             return true;
         }
@@ -258,7 +276,7 @@ public class LevelActivity extends AppCompatActivity {
                                     }else{
                                         Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
                                     }
-                                    userCursor.requery();
+                                levelCursor.requery();
                                     scAdapter.notifyDataSetChanged();
                             }
                         })
@@ -286,7 +304,7 @@ public class LevelActivity extends AppCompatActivity {
         //Настраиваем prompt.xml для нашего AlertDialog:
         mDialogBuilder.setView(promptsView);
 
-        userCursor.moveToPosition(acmi.position);
+        levelCursor.moveToPosition(acmi.position);
         //Настраиваем отображение поля для ввода текста в открытом диалоге:
         final RadioButton rbRec = promptsView.findViewById(R.id.radioTriangle);
         final RadioButton rbSq = promptsView.findViewById(R.id.radioSquare);
@@ -294,7 +312,7 @@ public class LevelActivity extends AppCompatActivity {
         final RadioButton rb16 = promptsView.findViewById(R.id.radio16);
         final RadioButton rb36 = promptsView.findViewById(R.id.radio36);
         final RadioButton rb64 = promptsView.findViewById(R.id.radio64);
-        switch (userCursor.getString(3)) {
+        switch (levelCursor.getString(3)) {
             case "Треугольник":
                 rbRec.setChecked(true);
                 onRadioButtonClicked(rbRec);
@@ -309,7 +327,7 @@ public class LevelActivity extends AppCompatActivity {
                 break;
         }
 
-        switch (userCursor.getInt(2)) {
+        switch (levelCursor.getInt(2)) {
             case 16:
                 rb16.setChecked(true);
                 onRadioButtonClicked(rb16);
@@ -326,10 +344,10 @@ public class LevelActivity extends AppCompatActivity {
 
 
         final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
-        seekBarHard.setProgress((userCursor.getInt(1)-1));
+        seekBarHard.setProgress((levelCursor.getInt(1)-1));
         final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
         seekBarHard.setMax( (maxHard - minHard) / stepHard );
-        tvHardSB.setText("" + userCursor.getInt(1));
+        tvHardSB.setText("" + levelCursor.getInt(1));
 
         //Подключаем слушателя на SeekBar
         seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

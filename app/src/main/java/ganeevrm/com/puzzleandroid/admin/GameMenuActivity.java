@@ -49,9 +49,9 @@ public class GameMenuActivity extends AppCompatActivity {
     private long gameid = 0;
 
     /**Список игр*/
-    ListView gameList;
+    private ListView gameList;
     /**Текст с количеством игр*/
-    TextView tvheader;
+    private TextView tvheader;
 
     /**Для получения значения из Bundle*/
     private String who;
