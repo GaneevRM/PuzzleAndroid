@@ -17,7 +17,7 @@
         android:textSize="20dp"/>
 
     <GridView
-        android:id="@+id/usergrid"
+        android:id="@+id/userGrid"
         android:scrollbars="horizontal"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -29,7 +29,7 @@
 
 
     <TextView
-        android:id="@+id/header"
+        android:id="@+id/searchText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"

@@ -32,18 +32,20 @@ public class GameMenuActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     /**БД*/
     private SQLiteDatabase db;
-
+    /**Курсор*/
     private Cursor gameCursor;
+    private SimpleCursorAdapter scAdapter;
+
     /**Выбранный RadioButton в диалоговом окне "Тип подсчёта"*/
     private int selectRadioType = 0;
     /**Выбранный RadioButton в диалоговом окне "Режим сборки"*/
     private int selectRadioMode = 0;
-    private SimpleCursorAdapter scAdapter;
 
-    /**Константа для использования в качестве requestCode*/
-    static final private int CHOOSE_IDS = 0;
+    /**Индикатор выбора одной игры*/
     private boolean click = false;
+    /**Позиция в списке*/
     private int positionList = -1;
+    /**Id игры*/
     private long gameid = 0;
 
     /**Список игр*/
@@ -57,6 +59,9 @@ public class GameMenuActivity extends AppCompatActivity {
     private LinearLayout adminLayout;
     /**Интерфейс для игрока*/
     private LinearLayout userLayout;
+
+    /**Константа для использования в качестве requestCode*/
+    static final private int CHOOSE_IDS = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
