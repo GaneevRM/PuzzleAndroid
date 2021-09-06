@@ -131,7 +131,27 @@ public class LevelActivity extends AppCompatActivity {
             tvlevel.setText("Выбран уровень: " + selectLevel);
         }
         header.setText("Найдено элементов: " + levelCursor.getCount());
-        levelCursor.requery();
+        levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(!levelCursor.isClosed()) levelCursor.close();
+        if (db.isOpen()) {
+            db.close();
+            databaseHelper.close();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(!levelCursor.isClosed()) levelCursor.close();
+        if (db.isOpen()) {
+            db.close();
+            databaseHelper.close();
+        }
     }
 
     //Создание контекстного меню для списка
@@ -153,19 +173,17 @@ public class LevelActivity extends AppCompatActivity {
             }catch (Exception ex){
                 Toast.makeText(getApplicationContext(), "Сначала удалите игру", Toast.LENGTH_SHORT).show();
             }
-            //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
-            levelCursor.requery();
+            levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
             header.setText("Найдено элементов: " + levelCursor.getCount());
-            scAdapter.notifyDataSetChanged();
+            scAdapter.changeCursor(levelCursor);
             return true;
         }
         if (item.getItemId() == CM_EDIT_ID) {
             //Получаем из пункта контекстного меню данные по пункту списка
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             onEditContext(acmi);
-            //Обновляем курсор и адаптер (userCursor.requery устарел, но на данный момент асинхронность не нужна, поэтому использую его)
-            levelCursor.requery();
-            scAdapter.notifyDataSetChanged();
+            levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
+            scAdapter.changeCursor(levelCursor);
             return true;
         }
         return super.onContextItemSelected(item);
@@ -276,8 +294,8 @@ public class LevelActivity extends AppCompatActivity {
                                     }else{
                                         Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
                                     }
-                                levelCursor.requery();
-                                    scAdapter.notifyDataSetChanged();
+                                    levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
+                                    scAdapter.changeCursor(levelCursor);
                             }
                         })
                 .setNegativeButton("Отмена",
