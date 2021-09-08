@@ -120,8 +120,8 @@ public class GameMenuActivity extends AppCompatActivity {
         super.onResume();
         checkDataBase();
 
-        positionList=-1;
-        click=false;
+        positionList = -1;
+        click = false;
 
         //Меняем интерфейс в зависимоти от значения who
         if(who.equals("user")){
@@ -195,10 +195,10 @@ public class GameMenuActivity extends AppCompatActivity {
         //Если вызов прошел успешно и requestCode равен константе CHOOSE_IDS,
         //то получаем данные для idLevel и idPic
         if(requestCode == CHOOSE_IDS && resultCode == RESULT_OK){
-            long idLevel = data.getLongExtra("idlevel", -1);
+            long idLevel = data.getLongExtra("idlevel", 0);
             long idPic = data.getLongExtra("idpic", 0);
             //Если выбрана и картинка и уровень, то создаем запись с новой игрой в таблице games
-            if(!(idLevel == -1 || idPic == 0)){
+            if(!(idLevel == 0 || idPic == 0)){
                 Cursor picCursor = db.query("picture", new String[]{"_id", "link"}, "_id=?", new String[]{String.valueOf(idPic)}, null, null, null);
                 picCursor.moveToFirst();
                 Cursor levelCursor = db.query("level", new String[]{"_id", "hard", "col_pieces", "form"}, "_id=?", new String[]{String.valueOf(idLevel)}, null, null, null);

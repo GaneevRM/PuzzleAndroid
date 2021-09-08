@@ -52,7 +52,7 @@ public class LevelActivity extends AppCompatActivity {
     /**Позиция в списке*/
     private int positionList = -1;
     /**Id уровня*/
-    private long idLevel = -1;
+    private long idLevel = 0;
 
     /**Константа для контекстного меню ID=1*/
     private static final int CM_DELETE_ID = 1;
@@ -96,14 +96,17 @@ public class LevelActivity extends AppCompatActivity {
                 if(!click){
                     v.setBackgroundColor(Color.LTGRAY);
                     positionList = position;
-                    idLevel =  levelCursor.getInt(0);
+                    idLevel =  id;
                     selectLevel = levelCursor.getInt(1);
                     click = true;
                     tvlevel.setText("Выбран уровень: " + selectLevel);
                 }else {
+                    //Если клик был произведён по уже выбранному элементу, то
+                    //убираем цвет и сбрасываем все значения переменных
                     if (position == positionList) {
                         v.setBackgroundColor(Color.TRANSPARENT);
                         positionList = -1;
+                        idLevel = 0;
                         selectLevel = 0;
                         click = false;
                         tvlevel.setText("Уровень не выбран");
@@ -111,27 +114,33 @@ public class LevelActivity extends AppCompatActivity {
                 }
             }
         };
+        //Устанаваливаем Listener у levelList
         levelList.setOnItemClickListener(itemListener);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // формируем столбцы сопоставления
+        checkDataBase();
+
+        positionList = -1;
+        click = false;
+
+        //Формируем столбцы сопоставления
         String[] from = new String[] { DatabaseHelper.COLUMN_LEVEL, DatabaseHelper.COLUMN_COL_PIECES, DatabaseHelper.COLUMN_FORM };
         int[] to = new int[] { R.id.level, R.id.col_pieces, R.id.form };
-        // создааем адаптер и настраиваем список
+        //Создаем адаптер и настраиваем список
         scAdapter = new SimpleCursorAdapter(this, R.layout.list_level_item, levelCursor, from, to, 0);
+        //Устанаваливаем адаптер у levelList
         levelList.setAdapter(scAdapter);
         //Назначаем контекстное меню для листа
         registerForContextMenu(levelList);
-        if(selectLevel==0){
+        if(selectLevel == 0){
             tvlevel.setText("Уровень не выбран");
         }else{
             tvlevel.setText("Выбран уровень: " + selectLevel);
         }
         header.setText("Найдено элементов: " + levelCursor.getCount());
-        levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
     }
 
     @Override
@@ -151,6 +160,20 @@ public class LevelActivity extends AppCompatActivity {
         if (db.isOpen()) {
             db.close();
             databaseHelper.close();
+        }
+    }
+
+    /**
+     * Проверка закрытости бд, курсора и их инициализация
+     */
+    public void checkDataBase(){
+        if(!db.isOpen()){
+            databaseHelper = new DatabaseHelper(getApplicationContext());
+            db = databaseHelper.getReadableDatabase();
+        }
+
+        if (levelCursor.isClosed()){
+            levelCursor = db.rawQuery("SELECT * FROM "+ DatabaseHelper.TABLE_LEVEL, null);
         }
     }
 
