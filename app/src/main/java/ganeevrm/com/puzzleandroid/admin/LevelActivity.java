@@ -13,6 +13,7 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -48,7 +49,7 @@ public class LevelActivity extends AppCompatActivity {
     /**Выбранный уровень*/
     private long selectLevel;
     /**Индикатор выбора одного уровня*/
-    private boolean click = false;
+    private boolean click = true;
     /**Позиция в списке*/
     private int positionList = -1;
     /**Id уровня*/
@@ -91,27 +92,22 @@ public class LevelActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 levelCursor.moveToPosition(position);
                 //При клике на элемент списка проверяем булеву переменную, чтобы
-                //был выбран только один уровень. Далее окрашиваем элемент в серый цвет,
-                //сохраняем позицию и id уровня, изменяем значение булевой переменной
-                if(!click){
-                    v.setBackgroundColor(Color.LTGRAY);
+                //был выбран только один уровень. Далее сохраняем позицию и id уровня,
+                //изменяем значение булевой переменной
+                if(click){
                     positionList = position;
                     idLevel =  id;
                     selectLevel = levelCursor.getInt(1);
-                    click = true;
+                    click = false;
                     tvlevel.setText("Выбран уровень: " + selectLevel);
-                }else {
-                    //Если клик был произведён по уже выбранному элементу, то
-                    //убираем цвет и сбрасываем все значения переменных
-                    if (position == positionList) {
-                        v.setBackgroundColor(Color.TRANSPARENT);
-                        positionList = -1;
-                        idLevel = 0;
-                        selectLevel = 0;
-                        click = false;
-                        tvlevel.setText("Уровень не выбран");
-                    }
+                } else {
+                    positionList = -1;
+                    idLevel = 0;
+                    selectLevel = 0;
+                    click = true;
+                    tvlevel.setText("Уровень не выбран");
                 }
+                scAdapter.notifyDataSetChanged();
             }
         };
         //Устанаваливаем Listener у levelList
@@ -123,14 +119,27 @@ public class LevelActivity extends AppCompatActivity {
         super.onResume();
         checkDataBase();
 
-        positionList = -1;
-        click = false;
-
         //Формируем столбцы сопоставления
         String[] from = new String[] { DatabaseHelper.COLUMN_LEVEL, DatabaseHelper.COLUMN_COL_PIECES, DatabaseHelper.COLUMN_FORM };
         int[] to = new int[] { R.id.level, R.id.col_pieces, R.id.form };
         //Создаем адаптер и настраиваем список
-        scAdapter = new SimpleCursorAdapter(this, R.layout.list_level_item, levelCursor, from, to, 0);
+        scAdapter = new SimpleCursorAdapter(this, R.layout.list_level_item, levelCursor, from, to, 0){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                //Для начального отображения используем переменную click = true, чтобы
+                //все элементы списка не были окрашены
+                if(click){
+                    view.setBackgroundColor(Color.TRANSPARENT);
+                } else {
+                    //Если click = false, то окрасим только выбранный элемент списка
+                    if(position == positionList){
+                        view.setBackgroundColor(Color.LTGRAY);
+                    }
+                }
+                return view;
+            }
+        };
         //Устанаваливаем адаптер у levelList
         levelList.setAdapter(scAdapter);
         //Назначаем контекстное меню для листа
