@@ -120,9 +120,6 @@ public class GameMenuActivity extends AppCompatActivity {
         super.onResume();
         checkDataBase();
 
-        positionList = -1;
-        click = false;
-
         //Меняем интерфейс в зависимоти от значения who
         if(who.equals("user")){
             adminLayout.setVisibility(View.GONE);

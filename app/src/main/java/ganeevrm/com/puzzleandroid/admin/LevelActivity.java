@@ -131,6 +131,10 @@ public class LevelActivity extends AppCompatActivity {
                 //все элементы списка не были окрашены
                 if(click){
                     view.setBackgroundColor(Color.TRANSPARENT);
+                    if(selectLevel!= 0 && selectLevel == levelCursor.getInt(1)){
+                        click = false;
+                        view.setBackgroundColor(Color.LTGRAY);
+                    }
                 } else {
                     //Если click = false, то окрасим только выбранный элемент списка
                     if(position == positionList){
