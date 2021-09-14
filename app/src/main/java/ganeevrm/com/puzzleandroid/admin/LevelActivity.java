@@ -190,14 +190,23 @@ public class LevelActivity extends AppCompatActivity {
         }
     }
 
-    //Создание контекстного меню для списка
+    /**
+     * Создание контекстного меню для списка
+     * @param menu ContextMenu
+     * @param v View
+     * @param menuInfo ContextMenu.ContextMenuInfo
+     */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, CM_DELETE_ID, 0, R.string.delete_record);
         menu.add(0, CM_EDIT_ID, 0, R.string.edit_record);
     }
 
-    //Обработка нажатия пункта контекстного меню
+    /**
+     * Обработка нажатия пункта контекстного меню
+     * @param item MenuItem
+     * @return boolean
+     */
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == CM_DELETE_ID) {
             //Получаем из пункта контекстного меню данные по пункту списка
@@ -225,147 +234,30 @@ public class LevelActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
-    public void onBack(View view){
-        finish();
-    }
-
-    public void onOk(View view) {
-        //Создание объекта Intent для запуска SecondActivity
-        Intent answerIntent = new Intent();
-        //Передача объекта с ключом "level" и значением selectLevel
-        answerIntent.putExtra("selectlevel",selectLevel);
-        answerIntent.putExtra("idLevel",idLevel);
-        setResult(RESULT_OK, answerIntent);
-        finish();
-    }
-
-    public void onRadioButtonClicked(View view) {
-        // если переключатель отмечен
-        boolean checked = ((RadioButton) view).isChecked();
-        // Получаем нажатый переключатель
-        switch(view.getId()) {
-            case R.id.radioTriangle:
-                if (checked){
-                    selectRadio = "Треугольник";
-                }
-                break;
-            case R.id.radioSquare:
-                if (checked){
-                    selectRadio = "Квадрат";
-                }
-                break;
-            case R.id.radioFigure:
-                if (checked){
-                    selectRadio = "Фигура";
-                }
-                break;
-            case R.id.radio16:
-                if (checked){
-                    selectRadioPiec = 16;
-                }
-                break;
-            case R.id.radio36:
-                if (checked){
-                    selectRadioPiec = 36;
-                }
-                break;
-            case R.id.radio64:
-                if (checked){
-                    selectRadioPiec = 64;
-                }
-                break;
-        }
-    }
-
-    public void onAddContext(View view){
-        //Получаем вид с файла prompt.xml, который применим для диалогового окна:
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.context_level, null);
-
-        //Создаем AlertDialog
-        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
-
-        //Настраиваем prompt.xml для нашего AlertDialog:
-        mDialogBuilder.setView(promptsView);
-
-        //Настраиваем отображение поля для ввода текста в открытом диалоге:
-
-        final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
-        seekBarHard.setProgress(0);
-        final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
-        seekBarHard.setMax( (maxHard - minHard) / stepHard );
-
-        //Подключаем слушателя на SeekBar
-        seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука, будет меняться текст
-                double value = minHard + (progress * stepHard);
-                tvHardSB.setText("" + (int)value);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        //Настраиваем сообщение в диалоговом окне:
-        mDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                    ContentValues cv = new ContentValues();
-                                    cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
-                                    cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
-                                    cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
-                                    if(db.insert(DatabaseHelper.TABLE_LEVEL, null, cv)!=-1){
-                                        Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
-                                    }else{
-                                        Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
-                                    }
-                                    levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
-                                    scAdapter.changeCursor(levelCursor);
-                            }
-                        })
-                .setNegativeButton("Отмена",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        //Создаем AlertDialog:
-        AlertDialog alertDialog = mDialogBuilder.create();
-        //И отображаем его:
-        alertDialog.show();
-    }
-
+    /**
+     * Нажатие пункта "Редактировать запись" в контекстном меню
+     * @param acmi AdapterView.AdapterContextMenuInfo
+     */
     public void onEditContext(final AdapterView.AdapterContextMenuInfo acmi){
-        //Получаем вид с файла prompt.xml, который применим для диалогового окна:
+        //Получаем вид с файла context_level.xml, который применим для диалогового окна
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.context_level, null);
 
-        //Создаем AlertDialog
+        //Создаем AlertDialog.Builder
         AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
 
-        //Настраиваем prompt.xml для нашего AlertDialog:
+        //Назначаем AlertDialog.Builder вид из context_level.xml
         mDialogBuilder.setView(promptsView);
 
-        levelCursor.moveToPosition(acmi.position);
-        //Настраиваем отображение поля для ввода текста в открытом диалоге:
+        //Настраиваем отображение RadioButton
         final RadioButton rbRec = promptsView.findViewById(R.id.radioTriangle);
         final RadioButton rbSq = promptsView.findViewById(R.id.radioSquare);
         final RadioButton rbFi = promptsView.findViewById(R.id.radioFigure);
         final RadioButton rb16 = promptsView.findViewById(R.id.radio16);
         final RadioButton rb36 = promptsView.findViewById(R.id.radio36);
         final RadioButton rb64 = promptsView.findViewById(R.id.radio64);
+
+        levelCursor.moveToPosition(acmi.position);
         switch (levelCursor.getString(3)) {
             case "Треугольник":
                 rbRec.setChecked(true);
@@ -396,7 +288,7 @@ public class LevelActivity extends AppCompatActivity {
                 break;
         }
 
-
+        //Настройка отобржения SeekBar
         final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
         seekBarHard.setProgress((levelCursor.getInt(1)-1));
         final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
@@ -407,7 +299,7 @@ public class LevelActivity extends AppCompatActivity {
         seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука, будет меняться текст
+                //При изменении ползнука будет меняться текст
                 double value = minHard + (progress * stepHard);
                 tvHardSB.setText("" + (int)value);
             }
@@ -453,6 +345,145 @@ public class LevelActivity extends AppCompatActivity {
         AlertDialog alertDialog = mDialogBuilder.create();
         //И отображаем его:
         alertDialog.show();
+    }
+
+    /**
+     * Обработка включения RadioButton
+     * @param view - View
+     */
+    public void onRadioButtonClicked(View view) {
+        //Если RadioButton включен
+        boolean checked = ((RadioButton) view).isChecked();
+        //Получаем id нажатого RadioButton и присваиваем значение
+        //переменной selectRadio или selectRadioPiec
+        switch(view.getId()) {
+            case R.id.radioTriangle:
+                if (checked){
+                    selectRadio = "Треугольник";
+                }
+                break;
+            case R.id.radioSquare:
+                if (checked){
+                    selectRadio = "Квадрат";
+                }
+                break;
+            case R.id.radioFigure:
+                if (checked){
+                    selectRadio = "Фигура";
+                }
+                break;
+            case R.id.radio16:
+                if (checked){
+                    selectRadioPiec = 16;
+                }
+                break;
+            case R.id.radio36:
+                if (checked){
+                    selectRadioPiec = 36;
+                }
+                break;
+            case R.id.radio64:
+                if (checked){
+                    selectRadioPiec = 64;
+                }
+                break;
+        }
+    }
+
+    /**
+     * Нажатие кнопки "Отмена"
+     * @param view - View
+     */
+    public void onBack(View view){
+        finish();
+    }
+
+    /**
+     * Нажатие кнопки "Добавить"
+     * @param view - View
+     */
+    public void onAddContext(View view){
+        //Получаем вид с файла context_level.xml, который применим для диалогового окна:
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.context_level, null);
+
+        //Создаем AlertDialog
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
+
+        //Настраиваем prompt.xml для нашего AlertDialog:
+        mDialogBuilder.setView(promptsView);
+
+        //Настраиваем отображение поля для ввода текста в открытом диалоге:
+
+        final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
+        seekBarHard.setProgress(0);
+        final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
+        seekBarHard.setMax( (maxHard - minHard) / stepHard );
+
+        //Подключаем слушателя на SeekBar
+        seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //При изменении ползнука, будет меняться текст
+                double value = minHard + (progress * stepHard);
+                tvHardSB.setText("" + (int)value);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        //Настраиваем сообщение в диалоговом окне:
+        mDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                ContentValues cv = new ContentValues();
+                                cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
+                                cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
+                                cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
+                                if(db.insert(DatabaseHelper.TABLE_LEVEL, null, cv)!=-1){
+                                    Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
+                                }
+                                levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
+                                scAdapter.changeCursor(levelCursor);
+                            }
+                        })
+                .setNegativeButton("Отмена",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        //Создаем AlertDialog:
+        AlertDialog alertDialog = mDialogBuilder.create();
+        //И отображаем его:
+        alertDialog.show();
+    }
+
+    /**
+     * Нажатие кнопки "Ок"
+     * @param view - View
+     */
+    public void onOk(View view) {
+        //Создание объекта Intent для запуска SecondActivity
+        Intent answerIntent = new Intent();
+        //Передача объекта с ключом "level" и значением selectLevel
+        answerIntent.putExtra("selectlevel",selectLevel);
+        answerIntent.putExtra("idLevel",idLevel);
+        setResult(RESULT_OK, answerIntent);
+        finish();
     }
 
 }
