@@ -239,6 +239,40 @@ public class LevelActivity extends AppCompatActivity {
      * @param acmi AdapterView.AdapterContextMenuInfo
      */
     public void onEditContext(final AdapterView.AdapterContextMenuInfo acmi){
+        dialogWindow(acmi.id, acmi.position, true);
+    }
+
+    /**
+     * Нажатие кнопки "Отмена"
+     * @param view - View
+     */
+    public void onBack(View view){
+        finish();
+    }
+
+    /**
+     * Нажатие кнопки "Добавить"
+     * @param view - View
+     */
+    public void onAddContext(View view){
+        dialogWindow(0,0, false);
+    }
+
+    /**
+     * Нажатие кнопки "Ок"
+     * @param view - View
+     */
+    public void onOk(View view) {
+        //Создание объекта Intent для запуска SecondActivity
+        Intent answerIntent = new Intent();
+        //Передача объекта с ключом "level" и значением selectLevel
+        answerIntent.putExtra("selectlevel",selectLevel);
+        answerIntent.putExtra("idLevel",idLevel);
+        setResult(RESULT_OK, answerIntent);
+        finish();
+    }
+
+    public void dialogWindow(final long acmiId, final int acmiPosition, boolean onEdit){
         //Получаем вид с файла context_level.xml, который применим для диалогового окна
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.context_level, null);
@@ -249,57 +283,65 @@ public class LevelActivity extends AppCompatActivity {
         //Назначаем AlertDialog.Builder вид из context_level.xml
         mDialogBuilder.setView(promptsView);
 
-        //Настраиваем отображение RadioButton
-        final RadioButton rbRec = promptsView.findViewById(R.id.radioTriangle);
-        final RadioButton rbSq = promptsView.findViewById(R.id.radioSquare);
-        final RadioButton rbFi = promptsView.findViewById(R.id.radioFigure);
-        final RadioButton rb16 = promptsView.findViewById(R.id.radio16);
-        final RadioButton rb36 = promptsView.findViewById(R.id.radio36);
-        final RadioButton rb64 = promptsView.findViewById(R.id.radio64);
+        //Если было включено редактирование, то устанавливаем все значения для RadioButton
+        if(onEdit){
+            //Настраиваем отображение RadioButton
+            final RadioButton rbRec = promptsView.findViewById(R.id.radioTriangle);
+            final RadioButton rbSq = promptsView.findViewById(R.id.radioSquare);
+            final RadioButton rbFi = promptsView.findViewById(R.id.radioFigure);
+            final RadioButton rb16 = promptsView.findViewById(R.id.radio16);
+            final RadioButton rb36 = promptsView.findViewById(R.id.radio36);
+            final RadioButton rb64 = promptsView.findViewById(R.id.radio64);
 
-        levelCursor.moveToPosition(acmi.position);
-        switch (levelCursor.getString(3)) {
-            case "Треугольник":
-                rbRec.setChecked(true);
-                onRadioButtonClicked(rbRec);
-                break;
-            case "Квадрат":
-                rbSq.setChecked(true);
-                onRadioButtonClicked(rbSq);
-                break;
-            case "Фигура":
-                rbFi.setChecked(true);
-                onRadioButtonClicked(rbFi);
-                break;
+            levelCursor.moveToPosition(acmiPosition);
+            switch (levelCursor.getString(3)) {
+                case "Треугольник":
+                    rbRec.setChecked(true);
+                    onRadioButtonClicked(rbRec);
+                    break;
+                case "Квадрат":
+                    rbSq.setChecked(true);
+                    onRadioButtonClicked(rbSq);
+                    break;
+                case "Фигура":
+                    rbFi.setChecked(true);
+                    onRadioButtonClicked(rbFi);
+                    break;
+            }
+
+            switch (levelCursor.getInt(2)) {
+                case 16:
+                    rb16.setChecked(true);
+                    onRadioButtonClicked(rb16);
+                    break;
+                case 36:
+                    rb36.setChecked(true);
+                    onRadioButtonClicked(rb36);
+                    break;
+                case 64:
+                    rb64.setChecked(true);
+                    onRadioButtonClicked(rb64);
+                    break;
+            }
         }
 
-        switch (levelCursor.getInt(2)) {
-            case 16:
-                rb16.setChecked(true);
-                onRadioButtonClicked(rb16);
-                break;
-            case 36:
-                rb36.setChecked(true);
-                onRadioButtonClicked(rb36);
-                break;
-            case 64:
-                rb64.setChecked(true);
-                onRadioButtonClicked(rb64);
-                break;
-        }
-
-        //Настройка отобржения SeekBar
+        //Настройка отображения SeekBar
         final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
-        seekBarHard.setProgress((levelCursor.getInt(1)-1));
+        seekBarHard.setProgress(0);
         final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
         seekBarHard.setMax( (maxHard - minHard) / stepHard );
-        tvHardSB.setText("" + levelCursor.getInt(1));
+
+        //Если было включено редактирование, то устанавливаем значение для SeekBar
+        if(onEdit){
+            tvHardSB.setText("" + levelCursor.getInt(1));
+            seekBarHard.setProgress(levelCursor.getInt(1) - 1);
+        }
 
         //Подключаем слушателя на SeekBar
         seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука будет меняться текст
+                //При изменении ползнука, будет меняться текст
                 double value = minHard + (progress * stepHard);
                 tvHardSB.setText("" + (int)value);
             }
@@ -315,35 +357,65 @@ public class LevelActivity extends AppCompatActivity {
             }
         });
 
-        //Настраиваем сообщение в диалоговом окне:
-        mDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                ContentValues cv = new ContentValues();
-                                cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
-                                cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
-                                cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
-                                try {
-                                    db.update(DatabaseHelper.TABLE_LEVEL, cv, DatabaseHelper.COLUMN_ID_L + "=" + String.valueOf(acmi.id), null);
-                                    Toast.makeText(getApplicationContext(), "Уровень отредактирован", Toast.LENGTH_SHORT).show();
-                                }catch (Exception ex){
-                                    Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
+        //Если было включено редактирование, то выводим соответствующий диалог
+        if(onEdit){
+            //Настраиваем сообщение в диалоговом окне
+            mDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
+                                    cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
+                                    cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
+                                    try {
+                                        db.update(DatabaseHelper.TABLE_LEVEL, cv, DatabaseHelper.COLUMN_ID_L + "=" + acmiId, null);
+                                        Toast.makeText(getApplicationContext(), "Уровень отредактирован", Toast.LENGTH_SHORT).show();
+                                    }catch (Exception ex){
+                                        Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
+                                    }
+                                    recreate();
                                 }
-                                recreate();
-                            }
-                        })
-                .setNegativeButton("Отмена",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
+                            })
+                    .setNegativeButton("Отмена",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    dialog.cancel();
+                                }
+                            });
+        } else {
+            //Настраиваем сообщение в диалоговом окне
+            mDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
+                                    cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
+                                    cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
+                                    if(db.insert(DatabaseHelper.TABLE_LEVEL, null, cv)!=-1){
+                                        Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
+                                    }
+                                    levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
+                                    scAdapter.changeCursor(levelCursor);
+                                }
+                            })
+                    .setNegativeButton("Отмена",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    dialog.cancel();
+                                }
+                            });
+        }
 
-        //Создаем AlertDialog:
+        //Создаем AlertDialog
         AlertDialog alertDialog = mDialogBuilder.create();
-        //И отображаем его:
+        
+        //И отображаем его
         alertDialog.show();
     }
 
@@ -388,102 +460,6 @@ public class LevelActivity extends AppCompatActivity {
                 }
                 break;
         }
-    }
-
-    /**
-     * Нажатие кнопки "Отмена"
-     * @param view - View
-     */
-    public void onBack(View view){
-        finish();
-    }
-
-    /**
-     * Нажатие кнопки "Добавить"
-     * @param view - View
-     */
-    public void onAddContext(View view){
-        //Получаем вид с файла context_level.xml, который применим для диалогового окна:
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.context_level, null);
-
-        //Создаем AlertDialog
-        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
-
-        //Настраиваем prompt.xml для нашего AlertDialog:
-        mDialogBuilder.setView(promptsView);
-
-        //Настраиваем отображение поля для ввода текста в открытом диалоге:
-
-        final SeekBar seekBarHard = promptsView.findViewById(R.id.seekBarHard);
-        seekBarHard.setProgress(0);
-        final TextView tvHardSB = promptsView.findViewById(R.id.seekBarHardProg);
-        seekBarHard.setMax( (maxHard - minHard) / stepHard );
-
-        //Подключаем слушателя на SeekBar
-        seekBarHard.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //При изменении ползнука, будет меняться текст
-                double value = minHard + (progress * stepHard);
-                tvHardSB.setText("" + (int)value);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        //Настраиваем сообщение в диалоговом окне:
-        mDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                ContentValues cv = new ContentValues();
-                                cv.put(DatabaseHelper.COLUMN_LEVEL, Integer.parseInt(tvHardSB.getText().toString()));
-                                cv.put(DatabaseHelper.COLUMN_COL_PIECES, selectRadioPiec);
-                                cv.put(DatabaseHelper.COLUMN_FORM, selectRadio);
-                                if(db.insert(DatabaseHelper.TABLE_LEVEL, null, cv)!=-1){
-                                    Toast.makeText(getApplicationContext(), "Уровень добавлен", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    Toast.makeText(getApplicationContext(), "Данная сложность уже присутствует", Toast.LENGTH_SHORT).show();
-                                }
-                                levelCursor = databaseHelper.getNewCursor(db, DatabaseHelper.TABLE_LEVEL);
-                                scAdapter.changeCursor(levelCursor);
-                            }
-                        })
-                .setNegativeButton("Отмена",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        //Создаем AlertDialog:
-        AlertDialog alertDialog = mDialogBuilder.create();
-        //И отображаем его:
-        alertDialog.show();
-    }
-
-    /**
-     * Нажатие кнопки "Ок"
-     * @param view - View
-     */
-    public void onOk(View view) {
-        //Создание объекта Intent для запуска SecondActivity
-        Intent answerIntent = new Intent();
-        //Передача объекта с ключом "level" и значением selectLevel
-        answerIntent.putExtra("selectlevel",selectLevel);
-        answerIntent.putExtra("idLevel",idLevel);
-        setResult(RESULT_OK, answerIntent);
-        finish();
     }
 
 }
